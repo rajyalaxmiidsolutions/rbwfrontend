@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles */
+html {
+  scroll-behavior: smooth;
+  font-size: 18px;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #222222;
+  background-color: #F8F8F8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F8F8;
+}
+::-webkit-scrollbar-thumb {
+  background: #C49A45;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6D0F1A;
+}
+
+/* Glass effect utility */
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-white {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Selection color */
+::selection {
+  background: #6D0F1A;
+  color: #FFFFFF;
+}
+
+/* Remove default focus outline and add custom */
+*:focus-visible {
+  outline: 2px solid #6D0F1A;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Loading skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #E8E8E8 25%, #f0f0f0 50%, #E8E8E8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
