@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { HiOutlineChartBar, HiOutlineCube, HiOutlineClipboardList, HiOutlineTag, HiOutlineUsers, HiOutlineCog, HiOutlineMenu, HiOutlineX, HiOutlineLogout, HiOutlineLocationMarker, HiOutlineChatAlt, HiOutlinePhotograph } from 'react-icons/hi';
+import { HiOutlineChartBar, HiOutlineCube, HiOutlineClipboardList, HiOutlineTag, HiOutlineUsers, HiOutlineCog, HiOutlineMenu, HiOutlineX, HiOutlineLogout, HiOutlineLocationMarker, HiOutlineChatAlt, HiOutlinePhotograph, HiOutlineVolumeUp } from 'react-icons/hi';
 import useAuth from '../hooks/useAuth';
 
 const sidebarLinks = [
@@ -12,6 +12,7 @@ const sidebarLinks = [
   { to: '/admin/locations', label: 'Locations', icon: HiOutlineLocationMarker },
   { to: '/admin/testimonials', label: 'Testimonials', icon: HiOutlineChatAlt },
   { to: '/admin/gallery', label: 'Gallery', icon: HiOutlinePhotograph },
+  { to: '/admin/announcements', label: 'Announcements', icon: HiOutlineVolumeUp },
   { to: '/admin/settings', label: 'Settings', icon: HiOutlineCog },
 ];
 

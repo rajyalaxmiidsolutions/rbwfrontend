@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineSearch } from 'react-icons/hi';
 import { adminGetLocations, adminCreateLocation, adminUpdateLocation, adminDeleteLocation } from '../../services/api';
 import { formatPrice } from '../../utils/helpers';
 import toast from 'react-hot-toast';
@@ -11,6 +11,7 @@ const AdminLocations = () => {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: '', shippingCharge: '', isActive: true });
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
 
   const fetchLocations = async () => {
     setLoading(true);
@@ -81,34 +82,50 @@ const AdminLocations = () => {
     }
   };
 
+  const filteredLocations = locations.filter(loc => 
+    loc.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-text">Shipping Locations</h2>
-          <p className="text-sm text-gray-500">{locations.length} location(s) configured</p>
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <HiOutlineSearch className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search locations..."
+            className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-xl text-base focus:outline-none focus:border-burgundy"
+          />
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-burgundy text-white px-5 py-3 rounded-xl text-base font-semibold hover:bg-burgundy-600 transition-colors"
-        >
-          <HiOutlinePlus className="w-5 h-5" /> Add Location
-        </button>
+        <div className="flex items-center justify-between sm:justify-end gap-4">
+          <p className="text-sm text-gray-500">{filteredLocations.length} location(s) configured</p>
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 bg-burgundy text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-burgundy-600 transition-colors shrink-0"
+          >
+            <HiOutlinePlus className="w-4 h-4" /> Add Location
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-base">
-            <thead>
-              <tr className="border-b border-border bg-gray-50/50">
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Location Name</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Shipping Charge</th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="text-right px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {locations.map((loc) => (
+          {filteredLocations.length === 0 ? (
+            <p className="text-center py-12 text-gray-500">No shipping locations found matching your query.</p>
+          ) : (
+            <table className="w-full text-base">
+              <thead>
+                <tr className="border-b border-border bg-gray-50/50">
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Location Name</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Shipping Charge</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="text-right px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredLocations.map((loc) => (
                 <tr key={loc._id} className="hover:bg-bg/50 transition-colors">
                   <td className="px-6 py-4 font-semibold text-text">{loc.name}</td>
                   <td className="px-6 py-4 font-bold text-burgundy">{formatPrice(loc.shippingCharge)}</td>
@@ -139,7 +156,8 @@ const AdminLocations = () => {
               ))}
             </tbody>
           </table>
-        </div>
+        )}
+      </div>
         {loading && <p className="text-center py-12 text-gray-400 text-base">Loading locations...</p>}
         {!loading && locations.length === 0 && (
           <p className="text-center py-12 text-gray-400 text-base">No locations added yet. Click "Add Location" to start.</p>

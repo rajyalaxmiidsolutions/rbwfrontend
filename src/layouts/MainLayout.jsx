@@ -1,13 +1,36 @@
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import { FaWhatsapp } from 'react-icons/fa';
+import { getActiveAnnouncements } from '../services/api';
 
 const MainLayout = () => {
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    getActiveAnnouncements()
+      .then((res) => setAnnouncements(res.data))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col relative">
-      <Navbar />
-      <main className="flex-1 pt-16 sm:pt-20">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        {/* Announcement Bar */}
+        {announcements.map((ann) => (
+          <div
+            key={ann._id}
+            style={{ backgroundColor: ann.bgColor, color: ann.textColor }}
+            className="py-2.5 text-center text-xs sm:text-sm font-semibold tracking-wide px-4 shadow-sm"
+          >
+            {ann.text}
+          </div>
+        ))}
+        <Navbar />
+      </div>
+
+      <main className={`flex-1 ${announcements.length > 0 ? 'pt-26 sm:pt-32' : 'pt-18 sm:pt-22'}`}>
         <Outlet />
       </main>
       <Footer />

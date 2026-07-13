@@ -33,6 +33,7 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminLocations = lazy(() => import('./pages/admin/AdminLocations'));
 const AdminTestimonials = lazy(() => import('./pages/admin/AdminTestimonials'));
 const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
+const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'));
 
 const Contact = lazy(() => import('./pages/Contact'));
 const Gallery = lazy(() => import('./pages/Gallery'));
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="/admin/locations" element={<AdminLocations />} />
           <Route path="/admin/testimonials" element={<AdminTestimonials />} />
           <Route path="/admin/gallery" element={<AdminGallery />} />
+          <Route path="/admin/announcements" element={<AdminAnnouncements />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
 

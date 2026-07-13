@@ -218,9 +218,26 @@ const AdminProducts = () => {
               )}
 
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Upload Images</label>
-                <input type="file" multiple accept="image/*" onChange={(e) => setFiles([...e.target.files])}
-                  className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-burgundy/5 file:text-burgundy file:font-medium file:text-xs file:cursor-pointer" />
+                <label className="block text-xs font-medium text-gray-500 mb-1">Upload Images (Max 10 total)</label>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={(e) => {
+                    const selectedFiles = Array.from(e.target.files);
+                    const totalImages = existingImages.length + files.length + selectedFiles.length;
+                    if (totalImages > 10) {
+                      toast.error('A product can have a maximum of 10 images');
+                      const allowedCount = 10 - (existingImages.length + files.length);
+                      if (allowedCount > 0) {
+                        setFiles([...files, ...selectedFiles.slice(0, allowedCount)]);
+                      }
+                    } else {
+                      setFiles([...files, ...selectedFiles]);
+                    }
+                  }}
+                  className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-burgundy/5 file:text-burgundy file:font-medium file:text-xs file:cursor-pointer" 
+                />
               </div>
 
               {/* Selected files preview */}

@@ -1,17 +1,54 @@
-import { useState, useEffect } from 'react';
-import { adminGetOrders, adminUpdateOrderStatus, adminUpdateDeliveryInfo, adminDeliverAndNotifyOrder } from '../../services/api';
-import { formatPrice, formatDate, getStatusColor } from '../../utils/helpers';
+import { useState, useEffect, useRef } from 'react';
+import { 
+  adminGetOrders, 
+  adminUpdateOrderStatus, 
+  adminUpdateDeliveryInfo, 
+  adminDeliverAndNotifyOrder 
+} from '../../services/api';
+import { formatPrice, getStatusColor } from '../../utils/helpers';
 import { ORDER_STATUSES } from '../../utils/constants';
-import { HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineTruck, HiOutlineLocationMarker } from 'react-icons/hi';
+import { 
+  HiOutlineChevronDown, 
+  HiOutlineChevronUp, 
+  HiOutlineLocationMarker,
+  HiOutlineRefresh,
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight,
+  HiOutlineSearch,
+  HiOutlineX
+} from 'react-icons/hi';
 import toast from 'react-hot-toast';
+
+const dateOptions = [
+  { id: 'Today', label: 'Today' },
+  { id: 'Yesterday', label: 'Yesterday' },
+  { id: 'Last 7 Days', label: 'Last 7 Days' },
+  { id: 'Last 30 Days', label: 'Last 30 Days' },
+  { id: 'Custom', label: 'Custom Date Range' }
+];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [totalOrdersCount, setTotalOrdersCount] = useState(0);
+  const [statusFilter, setStatusFilter] = useState('All');
   const [expandedOrder, setExpandedOrder] = useState(null);
+  
+  // Search state
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Date filter state
+  const [dateFilter, setDateFilter] = useState('Today');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [customRange, setCustomRange] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+
+  const [statusCounts, setStatusCounts] = useState(null);
 
   // Delivery info form
   const [deliveryForm, setDeliveryForm] = useState({
@@ -23,26 +60,85 @@ const AdminOrders = () => {
   });
   const [savingDelivery, setSavingDelivery] = useState(false);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const getBoundaries = (filter, custom) => {
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
+
+    if (filter === 'Today') {
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+    } else if (filter === 'Yesterday') {
+      start.setDate(now.getDate() - 1);
+      start.setHours(0, 0, 0, 0);
+      end.setDate(now.getDate() - 1);
+      end.setHours(23, 59, 59, 999);
+    } else if (filter === 'Last 7 Days') {
+      start.setDate(now.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+    } else if (filter === 'Last 30 Days') {
+      start.setDate(now.getDate() - 29);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+    } else if (filter === 'Custom' && custom) {
+      start = new Date(custom.startDate);
+      start.setHours(0, 0, 0, 0);
+      end = new Date(custom.endDate);
+      end.setHours(23, 59, 59, 999);
+    }
+    return { startDate: start.toISOString(), endDate: end.toISOString() };
+  };
+
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const params = { page, limit: 20 };
-      if (statusFilter) params.status = statusFilter;
+      if (statusFilter && statusFilter !== 'All') {
+        params.status = statusFilter;
+      }
+      if (debouncedSearch && debouncedSearch.trim() !== '') {
+        params.search = debouncedSearch;
+      } else {
+        const { startDate, endDate } = getBoundaries(dateFilter, customRange);
+        params.startDate = startDate;
+        params.endDate = endDate;
+      }
+
       const { data } = await adminGetOrders(params);
       setOrders(data.orders);
       setTotalPages(data.totalPages);
-    } catch { /* silent */ }
-    finally { setLoading(false); }
+      setTotalOrdersCount(data.total);
+      setStatusCounts(data.statusCounts);
+    } catch (err) {
+      toast.error('Failed to load orders');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchOrders(); }, [page, statusFilter]);
+  // Re-fetch orders when dependencies change
+  useEffect(() => {
+    fetchOrders();
+  }, [page, statusFilter, debouncedSearch, dateFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await adminUpdateOrderStatus(orderId, { orderStatus: newStatus });
       toast.success(`Order status updated to ${newStatus}`);
       fetchOrders();
-    } catch { toast.error('Failed to update status'); }
+    } catch { 
+      toast.error('Failed to update status'); 
+    }
   };
 
   const toggleExpand = (order) => {
@@ -89,232 +185,413 @@ const AdminOrders = () => {
     }
   };
 
+  const handleCustomRangeSubmit = (e) => {
+    e.preventDefault();
+    if (new Date(customRange.startDate) > new Date(customRange.endDate)) {
+      toast.error('Start date cannot be after end date');
+      return;
+    }
+    setPage(1);
+    fetchOrders();
+  };
+
+  const formatFullDateTime = (dateStr) => {
+    const date = new Date(dateStr);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    
+    return {
+      date: `${day} ${month} ${year}`,
+      time: `${hours}:${minutes} ${ampm}`
+    };
+  };
+
+  const renderStatusTab = (s, count) => {
+    const isActive = statusFilter === s;
+    return (
+      <button 
+        key={s} 
+        onClick={() => { setStatusFilter(s); setPage(1); }}
+        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border ${isActive ? 'bg-burgundy text-white border-burgundy' : 'bg-white border-border text-text hover:bg-bg'}`}
+      >
+        {s} <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-bg text-gray-500'}`}>{count || 0}</span>
+      </button>
+    );
+  };
+
   return (
-    <div>
-      {/* Status Filter Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button onClick={() => { setStatusFilter(''); setPage(1); }}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${!statusFilter ? 'bg-burgundy text-white' : 'bg-white border border-border text-text'}`}>
-          All
-        </button>
-        {ORDER_STATUSES.map(s => (
-          <button key={s} onClick={() => { setStatusFilter(s); setPage(1); }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${statusFilter === s ? 'bg-burgundy text-white' : 'bg-white border border-border text-text'}`}>
-            {s}
-          </button>
-        ))}
+    <div className="space-y-6">
+      {/* Top Header & Page controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-text">Orders</h2>
+          <p className="text-sm text-gray-500">{totalOrdersCount} order(s) listed</p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          {/* Universal Search Bar */}
+          <div className="relative flex-1 sm:w-80">
+            <HiOutlineSearch className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search orders..."
+              className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-xl text-base focus:outline-none focus:border-burgundy"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Date filter dropdown (only active when not searching) */}
+            <div className="relative flex-1 sm:flex-initial">
+              <button 
+                disabled={!!debouncedSearch}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-white border border-border rounded-xl text-sm font-semibold text-text hover:bg-bg/85 transition-colors disabled:opacity-50"
+              >
+                {debouncedSearch ? 'Global Search' : dateOptions.find(o => o.id === dateFilter)?.label}
+                <HiOutlineChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
+              {showDropdown && !debouncedSearch && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-border py-1 z-30">
+                  {dateOptions.map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => {
+                        setDateFilter(opt.id);
+                        setPage(1);
+                        setShowDropdown(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm font-medium transition-colors ${dateFilter === opt.id ? 'bg-burgundy/5 text-burgundy' : 'text-text hover:bg-bg'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Refresh button */}
+            <button 
+              onClick={() => { setLoading(true); fetchOrders(); }}
+              className="p-3 bg-white border border-border rounded-xl text-text hover:bg-bg/85 transition-colors"
+              title="Refresh results"
+            >
+              <HiOutlineRefresh className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border">
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Order ID</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Customer</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Items</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Product</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Shipping</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Total</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Payment</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Date</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Status</th>
-              <th className="px-3 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <>
-                <tr key={order._id} className={`border-b border-border last:border-0 hover:bg-bg/50 cursor-pointer ${expandedOrder === order._id ? 'bg-bg/50' : ''}`} onClick={() => toggleExpand(order)}>
-                  <td className="px-5 py-3 font-medium">#{order._id.slice(-6).toUpperCase()}</td>
-                  <td className="px-5 py-3">
-                    <p className="font-medium">{order.user?.name || '—'}</p>
-                    <p className="text-xs text-gray-400">{order.user?.email}</p>
-                  </td>
-                  <td className="px-5 py-3 text-gray-500">{order.products?.length} items</td>
-                  <td className="px-5 py-3 font-medium">{formatPrice(order.productTotal)}</td>
-                  <td className="px-5 py-3">
-                    {order.shippingCharge > 0 ? (
-                      <span className="font-medium">{formatPrice(order.shippingCharge)}</span>
-                    ) : (
-                      <span className="text-xs text-amber-600">Not set</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 font-semibold text-burgundy">{formatPrice(order.totalPrice)}</td>
-                  <td className="px-5 py-3 text-gray-500">{order.paymentMethod}</td>
-                  <td className="px-5 py-3 text-gray-400">{formatDate(order.createdAt)}</td>
-                  <td className="px-5 py-3">
-                    <select
-                      value={order.orderStatus}
-                      onChange={(e) => { e.stopPropagation(); handleStatusChange(order._id, e.target.value); }}
-                      onClick={(e) => e.stopPropagation()}
-                      className={`px-2 py-1 rounded-lg text-xs font-medium border-0 appearance-none cursor-pointer ${getStatusColor(order.orderStatus)}`}
-                    >
-                      {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </td>
-                  <td className="px-3 py-3">
-                    {expandedOrder === order._id ? (
-                      <HiOutlineChevronUp className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <HiOutlineChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
-                  </td>
+      {/* Custom Date Range picker form */}
+      {!debouncedSearch && dateFilter === 'Custom' && (
+        <form onSubmit={handleCustomRangeSubmit} className="flex flex-wrap items-end gap-4 bg-white p-5 rounded-2xl border border-border animate-fadeIn">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Start Date</label>
+            <input 
+              type="date" 
+              value={customRange.startDate}
+              onChange={(e) => setCustomRange({ ...customRange, startDate: e.target.value })}
+              required
+              className="px-4 py-2.5 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">End Date</label>
+            <input 
+              type="date" 
+              value={customRange.endDate}
+              onChange={(e) => setCustomRange({ ...customRange, endDate: e.target.value })}
+              required
+              className="px-4 py-2.5 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+            />
+          </div>
+          <button
+            type="submit"
+            className="px-5 py-2.5 bg-burgundy hover:bg-burgundy-600 text-white rounded-xl text-sm font-semibold transition-colors"
+          >
+            Apply Range
+          </button>
+        </form>
+      )}
+
+      {/* Global search status message */}
+      {debouncedSearch && (
+        <p className="text-xs font-medium text-burgundy italic">Searching all orders globally (date filters paused)</p>
+      )}
+
+      {/* Status Filter Tabs with Counts */}
+      <div className="flex flex-wrap gap-2">
+        {renderStatusTab('All', statusCounts?.All)}
+        {ORDER_STATUSES.map(s => renderStatusTab(s, statusCounts?.[s]))}
+      </div>
+
+      {/* Orders Table & Empty States */}
+      <div className="bg-white rounded-2xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="p-10 text-center text-gray-500">Loading orders...</div>
+          ) : orders.length === 0 ? (
+            <div className="p-12 text-center text-gray-500 space-y-4">
+              {debouncedSearch ? (
+                <>
+                  <p className="text-base font-semibold">No orders found</p>
+                  <p className="text-sm text-gray-400">No orders match "{debouncedSearch}".</p>
+                  <button onClick={() => setSearch('')} className="text-sm font-semibold text-burgundy hover:underline">Clear Search</button>
+                </>
+              ) : dateFilter === 'Today' ? (
+                <>
+                  <p className="text-base font-semibold">No orders today</p>
+                  <p className="text-sm text-gray-400">New orders placed today will appear here.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-base font-semibold">No {statusFilter !== 'All' ? statusFilter : ''} orders</p>
+                  <p className="text-sm text-gray-400">There are no {statusFilter !== 'All' ? statusFilter : ''} orders matching the selected filters.</p>
+                </>
+              )}
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr className="bg-bg border-b border-border text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-4">Order ID</th>
+                  <th className="px-5 py-4">Customer</th>
+                  <th className="px-5 py-4">Items</th>
+                  <th className="px-5 py-4">Product</th>
+                  <th className="px-5 py-4">Shipping</th>
+                  <th className="px-5 py-4">Total</th>
+                  <th className="px-5 py-4">Payment</th>
+                  <th className="px-5 py-4">Date</th>
+                  <th className="px-5 py-4">Status</th>
+                  <th className="px-4 py-4 text-right"></th>
                 </tr>
+              </thead>
+              <tbody className="divide-y divide-border text-base text-text">
+                {orders.map((order) => {
+                  const formatted = formatFullDateTime(order.createdAt);
+                  return (
+                    <tr key={order._id} className={`hover:bg-bg/40 cursor-pointer transition-colors ${expandedOrder === order._id ? 'bg-bg/40' : ''}`} onClick={() => toggleExpand(order)}>
+                      <td className="px-5 py-4 font-semibold text-sm">#{order._id.slice(-6).toUpperCase()}</td>
+                      <td className="px-5 py-4">
+                        <p className="font-semibold block text-sm">{order.user?.name || '—'}</p>
+                        <p className="text-xs text-gray-400 block mt-0.5">{order.user?.email}</p>
+                      </td>
+                      <td className="px-5 py-4 text-gray-500 text-sm">{order.products?.length} item(s)</td>
+                      <td className="px-5 py-4 font-semibold text-sm">{formatPrice(order.productTotal)}</td>
+                      <td className="px-5 py-4 text-sm">
+                        {order.shippingCharge > 0 ? (
+                          <span className="font-semibold">{formatPrice(order.shippingCharge)}</span>
+                        ) : (
+                          <span className="text-xs text-amber-600 font-semibold">Not set</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 font-bold text-burgundy text-sm">{formatPrice(order.totalPrice)}</td>
+                      <td className="px-5 py-4 text-sm text-gray-600">{order.paymentMethod}</td>
+                      <td className="px-5 py-4">
+                        <span className="font-semibold block text-sm">{formatted.date}</span>
+                        <span className="text-xs text-gray-400 block mt-0.5">{formatted.time}</span>
+                      </td>
+                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={order.orderStatus}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold border-0 appearance-none cursor-pointer ${getStatusColor(order.orderStatus)}`}
+                        >
+                          {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        {expandedOrder === order._id ? (
+                          <HiOutlineChevronUp className="w-5 h-5 text-gray-400" />
+                        ) : (
+                          <HiOutlineChevronDown className="w-5 h-5 text-gray-400" />
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
 
-                {/* Expanded Detail Row */}
-                {expandedOrder === order._id && (
-                  <tr key={`${order._id}-detail`}>
-                    <td colSpan="10" className="px-5 py-4 bg-gray-50/50">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Expanded detail row placement - render inline or absolute depending on layout */}
+      {expandedOrder && !loading && (
+        (() => {
+          const order = orders.find(o => o._id === expandedOrder);
+          if (!order) return null;
+          return (
+            <div className="bg-bg/40 border border-border rounded-2xl p-6 space-y-6 animate-fadeIn">
+              <div className="flex justify-between items-center pb-4 border-b border-border">
+                <h3 className="text-base font-bold text-text">Order Detail (Last 6 Digits: #{order._id.slice(-6).toUpperCase()})</h3>
+                <button onClick={() => setExpandedOrder(null)} className="text-gray-400 hover:text-burgundy">
+                  <HiOutlineX className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left: Order Items & Shipping address */}
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Items</h4>
+                    <div className="divide-y divide-border border border-border rounded-xl bg-white p-4 space-y-1">
+                      {order.products.map((item, i) => (
+                        <div key={i} className="flex justify-between text-sm py-2 last:pb-0 first:pt-0">
+                          <span className="text-gray-600 font-semibold">{item.product?.name || item.name} &times; {item.quantity}</span>
+                          <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-                        {/* Left: Order Details & Shipping Address */}
-                        <div className="space-y-4">
-                          {/* Items */}
+                  <div className="bg-white rounded-xl border border-border p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <HiOutlineLocationMarker className="w-4 h-4 text-burgundy" />
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Shipping Address</h4>
+                    </div>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p className="font-semibold">{order.shippingAddress?.fullName}</p>
+                      <p>{order.shippingAddress?.street}</p>
+                      <p>{order.shippingAddress?.city}, {order.shippingAddress?.state} — {order.shippingAddress?.pincode}</p>
+                      <p>📞 {order.shippingAddress?.phone}</p>
+                      <p>✉️ {order.shippingAddress?.email}</p>
+                      {order.shippingAddress?.businessName && <p>🏢 {order.shippingAddress.businessName}</p>}
+                      {order.shippingAddress?.gstNumber && <p>GST: {order.shippingAddress.gstNumber}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Actions / Delivery Info */}
+                <div className="space-y-6">
+                  {['Paid', 'Confirmed', 'Shipped'].includes(order.orderStatus) && (
+                    <div className="bg-white rounded-xl border border-blue-200 p-5 shadow-sm">
+                      <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-4">Delivery Information</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
+                          <input
+                            value={deliveryForm.trackingNumber}
+                            onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
+                            placeholder="e.g. AWB12345678"
+                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
+                          <input
+                            value={deliveryForm.receivingSpot}
+                            onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
+                            placeholder="e.g. Front gate, warehouse entrance"
+                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Order Items</h4>
-                            <div className="space-y-1">
-                              {order.products.map((item, i) => (
-                                <div key={i} className="flex justify-between text-sm">
-                                  <span className="text-gray-600">{item.name} × {item.quantity}</span>
-                                  <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
-                                </div>
-                              ))}
-                            </div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
+                            <input
+                              value={deliveryForm.deliveryBoyName}
+                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
+                              placeholder="Name"
+                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                            />
                           </div>
-
-                          {/* Shipping Address */}
-                          <div className="bg-white rounded-lg border border-border p-4">
-                            <div className="flex items-center gap-2 mb-2">
-                              <HiOutlineLocationMarker className="w-4 h-4 text-burgundy" />
-                              <h4 className="text-xs font-semibold text-gray-500 uppercase">Shipping Address</h4>
-                            </div>
-                            <div className="text-sm text-gray-600 space-y-0.5">
-                              <p className="font-medium">{order.shippingAddress?.fullName}</p>
-                              <p>{order.shippingAddress?.street}</p>
-                              <p>{order.shippingAddress?.city}, {order.shippingAddress?.state} — {order.shippingAddress?.pincode}</p>
-                              <p>📞 {order.shippingAddress?.phone}</p>
-                              <p>✉️ {order.shippingAddress?.email}</p>
-                              {order.shippingAddress?.businessName && <p>🏢 {order.shippingAddress.businessName}</p>}
-                              {order.shippingAddress?.gstNumber && <p>GST: {order.shippingAddress.gstNumber}</p>}
-                            </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
+                            <input
+                              value={deliveryForm.deliveryBoyPhone}
+                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
+                              placeholder="Phone number"
+                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                            />
                           </div>
                         </div>
-
-                        {/* Right: Actions */}
-                        <div className="space-y-4">
-
-                          {/* Delivery Info — When order is paid or later */}
-                          {['Paid', 'Confirmed', 'Shipped'].includes(order.orderStatus) && (
-                            <div className="bg-white rounded-lg border border-blue-200 p-4">
-                              <h4 className="text-xs font-semibold text-blue-800 uppercase mb-3">Delivery Information</h4>
-                              <div className="space-y-3">
-                                <div>
-                                  <label className="block text-xs text-gray-500 mb-1">Tracking Number</label>
-                                  <input
-                                    value={deliveryForm.trackingNumber}
-                                    onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
-                                    placeholder="e.g. AWB12345678"
-                                    className="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-burgundy"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-xs text-gray-500 mb-1">Receiving Spot</label>
-                                  <input
-                                    value={deliveryForm.receivingSpot}
-                                    onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
-                                    placeholder="e.g. Front gate, warehouse entrance"
-                                    className="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-burgundy"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                  <div>
-                                    <label className="block text-xs text-gray-500 mb-1">Delivery Boy Name</label>
-                                    <input
-                                      value={deliveryForm.deliveryBoyName}
-                                      onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
-                                      placeholder="Name"
-                                      className="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-burgundy"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-xs text-gray-500 mb-1">Delivery Boy Phone</label>
-                                    <input
-                                      value={deliveryForm.deliveryBoyPhone}
-                                      onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
-                                      placeholder="Phone number"
-                                      className="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-burgundy"
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="block text-xs text-gray-500 mb-1">Delivery Notes</label>
-                                  <textarea
-                                    value={deliveryForm.deliveryNotes}
-                                    onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
-                                    placeholder="Any special instructions..."
-                                    rows={2}
-                                    className="w-full px-3 py-2 bg-bg border border-border rounded-lg text-sm focus:outline-none focus:border-burgundy resize-none"
-                                  />
-                                </div>
-                                <div className="flex gap-3">
-                                  <button
-                                    onClick={() => handleSaveDeliveryInfo(order._id)}
-                                    disabled={savingDelivery}
-                                    className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-text rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                                  >
-                                    Save Draft Info
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeliverAndNotify(order._id)}
-                                    disabled={savingDelivery}
-                                    className="flex-1 px-4 py-2 bg-burgundy hover:bg-burgundy/90 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                                  >
-                                    {savingDelivery ? 'Processing...' : 'Deliver & Send Bill'}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Show existing delivery info for delivered order */}
-                          {order.orderStatus === 'Delivered' && order.deliveryInfo && (
-                            <div className="bg-white rounded-lg border border-border p-4">
-                              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Delivery Info</h4>
-                              <div className="text-sm text-gray-600 space-y-1">
-                                {order.deliveryInfo.trackingNumber && <p>📦 Tracking: {order.deliveryInfo.trackingNumber}</p>}
-                                {order.deliveryInfo.receivingSpot && <p>📍 Spot: {order.deliveryInfo.receivingSpot}</p>}
-                                {order.deliveryInfo.deliveryBoyName && <p>👤 {order.deliveryInfo.deliveryBoyName}</p>}
-                                {order.deliveryInfo.deliveryBoyPhone && <p>📞 {order.deliveryInfo.deliveryBoyPhone}</p>}
-                                {order.deliveryInfo.deliveryNotes && <p>📝 {order.deliveryInfo.deliveryNotes}</p>}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Waiting info messages */}
-                          {order.orderStatus === 'Pending Payment' && (
-                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-700">
-                              ⏳ Waiting for customer to complete payment via Razorpay.
-                            </div>
-                          )}
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
+                          <textarea
+                            value={deliveryForm.deliveryNotes}
+                            onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
+                            placeholder="Any special instructions..."
+                            rows={2}
+                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
+                          />
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                          <button
+                            onClick={() => handleSaveDeliveryInfo(order._id)}
+                            disabled={savingDelivery}
+                            className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                          >
+                            Save Draft Info
+                          </button>
+                          <button
+                            onClick={() => handleDeliverAndNotify(order._id)}
+                            disabled={savingDelivery}
+                            className="flex-1 px-4 py-2.5 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                          >
+                            {savingDelivery ? 'Processing...' : 'Deliver & Send Bill'}
+                          </button>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                )}
-              </>
-            ))}
-          </tbody>
-        </table>
-        {loading && <p className="text-center py-8 text-gray-400 text-sm">Loading...</p>}
-        {!loading && orders.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No orders found</p>}
-      </div>
+                    </div>
+                  )}
 
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button key={p} onClick={() => setPage(p)} className={`w-9 h-9 rounded-lg text-xs font-medium ${p === page ? 'bg-burgundy text-white' : 'bg-white border border-border'}`}>{p}</button>
-          ))}
+                  {order.orderStatus === 'Delivered' && order.deliveryInfo && (
+                    <div className="bg-white rounded-xl border border-border p-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Delivery Info</h4>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        {order.deliveryInfo.trackingNumber && <p>📦 Tracking: {order.deliveryInfo.trackingNumber}</p>}
+                        {order.deliveryInfo.receivingSpot && <p>📍 Spot: {order.deliveryInfo.receivingSpot}</p>}
+                        {order.deliveryInfo.deliveryBoyName && <p>👤 {order.deliveryInfo.deliveryBoyName}</p>}
+                        {order.deliveryInfo.deliveryBoyPhone && <p>📞 {order.deliveryInfo.deliveryBoyPhone}</p>}
+                        {order.deliveryInfo.deliveryNotes && <p>📝 {order.deliveryInfo.deliveryNotes}</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {order.orderStatus === 'Pending Payment' && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-700 font-medium">
+                      ⏳ Waiting for customer to complete payment via Razorpay.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()
+      )}
+
+      {/* Pagination Footer */}
+      {!loading && totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-border text-sm text-gray-500">
+          <div>
+            Showing <span className="font-semibold">{Math.min((page - 1) * 20 + 1, totalOrdersCount)}</span>&ndash;
+            <span className="font-semibold">{Math.min(page * 20, totalOrdersCount)}</span> of <span className="font-semibold">{totalOrdersCount}</span> orders
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(p - 1, 1))}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border rounded-xl font-semibold bg-white hover:bg-bg disabled:opacity-40 transition-colors disabled:cursor-not-allowed"
+            >
+              <HiOutlineChevronLeft className="w-5 h-5" /> Previous
+            </button>
+            <span className="font-medium text-text">Page {page} of {totalPages}</span>
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border rounded-xl font-semibold bg-white hover:bg-bg disabled:opacity-40 transition-colors disabled:cursor-not-allowed"
+            >
+              Next <HiOutlineChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -62,7 +62,7 @@ export const submitTestimonial = (data) => API.post('/users/testimonials', data)
 // Admin
 export const adminLogin = (data) => API.post('/admin/login', data);
 export const seedAdmin = () => API.post('/admin/seed');
-export const getDashboard = () => API.get('/admin/dashboard');
+export const getDashboard = (params) => API.get('/admin/dashboard', { params });
 
 // Admin Products
 export const adminGetProducts = (params) => API.get('/admin/products', { params });
@@ -117,5 +117,12 @@ export const adminCreateCustomer = (data) => API.post('/admin/customers', data);
 export const adminUpdateCustomer = (id, data) => API.put(`/admin/customers/${id}`, data);
 export const adminDeleteCustomer = (id) => API.delete(`/admin/customers/${id}`);
 export const adminGetCustomerOrders = (id) => API.get(`/admin/customers/${id}/orders`);
+
+// Announcements
+export const getActiveAnnouncements = () => API.get('/announcements/active');
+export const adminGetAnnouncements = () => API.get('/announcements');
+export const adminCreateAnnouncement = (data) => API.post('/announcements', data);
+export const adminUpdateAnnouncement = (id, data) => API.put(`/announcements/${id}`, data);
+export const adminDeleteAnnouncement = (id) => API.delete(`/announcements/${id}`);
 
 export default API;

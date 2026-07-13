@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineStar, HiStar } from 'react-icons/hi';
+import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineX, HiOutlineStar, HiStar, HiOutlineSearch } from 'react-icons/hi';
 import { getCategories, adminCreateCategory, adminUpdateCategory, adminDeleteCategory, adminToggleFeaturedCategory } from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -11,6 +11,7 @@ const AdminCategories = () => {
   const [form, setForm] = useState({ name: '', description: '' });
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
 
   const handleToggleFeatured = async (id) => {
     try {
@@ -81,17 +82,37 @@ const AdminCategories = () => {
     }
   };
 
+  const filteredCategories = categories.filter(cat => 
+    cat.name.toLowerCase().includes(search.toLowerCase()) ||
+    (cat.description || '').toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <p className="text-sm text-gray-500">{categories.length} categories</p>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-burgundy text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-burgundy-600 transition-colors">
-          <HiOutlinePlus className="w-4 h-4" /> Add Category
-        </button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
+          <HiOutlineSearch className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search categories..."
+            className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-xl text-base focus:outline-none focus:border-burgundy"
+          />
+        </div>
+        <div className="flex items-center justify-between sm:justify-end gap-4">
+          <p className="text-sm text-gray-500">{filteredCategories.length} categories</p>
+          <button onClick={openCreate} className="flex items-center gap-2 bg-burgundy text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-burgundy-600 transition-colors shrink-0">
+            <HiOutlinePlus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((cat) => (
+      {filteredCategories.length === 0 ? (
+        <p className="text-center py-12 text-gray-500">No categories found matching your query.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredCategories.map((cat) => (
           <div key={cat._id} className="bg-white rounded-xl border border-border overflow-hidden relative">
             <button
               onClick={(e) => { e.stopPropagation(); handleToggleFeatured(cat._id); }}
@@ -122,6 +143,7 @@ const AdminCategories = () => {
           </div>
         ))}
       </div>
+    )}
 
       {loading && <p className="text-center py-8 text-gray-400 text-sm">Loading...</p>}
       {!loading && categories.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No categories. Create one to get started.</p>}
