@@ -1,11 +1,11 @@
 export const BUSINESS = {
   name: 'Rajyalaxmi Binding Works',
   shortName: 'RBW',
-  phone: '63004 50725',
+  phone: '6300450725, 9030800381',
   email: 'rajyalaxmi.idsolutions@gmail.com',
-  supportEmail: 'support.rajyalaxmibindingworks@gmail.com',
-  location: 'https://share.google/otr0fFmqsx8XsLPAq',
-  address: 'Hyderabad, Telangana, India',
+  supportEmail: 'rajyalaxmi.idsolutions@gmail.com',
+  location: 'https://share.google/2pfQ7BCjqfUWm95fJ',
+  address: '19-1-146, NGB Road, New Palvancha, Bhadradri district, Telengana',
 };
 
 export const ORDER_STATUSES = [
@@ -13,12 +13,5 @@ export const ORDER_STATUSES = [
 ];
 
 export const INDIAN_STATES = [
-  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
-  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
-  'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
-  'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
-  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
-  'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
-  'Delhi', 'Jammu & Kashmir', 'Ladakh', 'Puducherry',
-  'Chandigarh', 'Andaman & Nicobar', 'Dadra & Nagar Haveli', 'Lakshadweep',
+  'Andhra Pradesh', 'Telangana',
 ];

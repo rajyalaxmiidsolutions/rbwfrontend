@@ -11,7 +11,7 @@ const Footer = () => {
           <div>
             <img src="/logo.png" alt="RBW" className="h-12 w-auto brightness-0 invert mb-4" />
             <p className="text-white/70 text-sm leading-relaxed">
-              Premium wedding invitation cards designed for wholesalers and retailers across India.
+              Online store for our wholesale customers.
             </p>
           </div>
 
