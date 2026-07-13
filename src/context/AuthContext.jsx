@@ -15,8 +15,10 @@ export const AuthProvider = ({ children }) => {
         try {
           const { data } = await getProfile();
           setUser(data);
-        } catch {
-          logout();
+        } catch (err) {
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            logout();
+          }
         }
       }
       setLoading(false);

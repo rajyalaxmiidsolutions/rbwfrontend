@@ -80,9 +80,23 @@ const Cart = () => {
                       >
                         <HiMinus className="w-3 h-3" />
                       </button>
-                      <span className="w-10 h-8 flex items-center justify-center text-xs font-medium border-x border-border">
-                        {item.quantity}
-                      </span>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (val >= item.product.moq) {
+                            updateQuantity(item.product._id, val);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const val = Number(e.target.value);
+                          if (!val || val < item.product.moq) {
+                            updateQuantity(item.product._id, item.product.moq);
+                          }
+                        }}
+                        className="w-12 h-8 text-center text-xs font-medium border-x border-border focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-transparent"
+                      />
                       <button
                         onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
                         className="w-8 h-8 flex items-center justify-center hover:bg-bg transition-colors"

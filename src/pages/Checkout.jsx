@@ -197,12 +197,17 @@ const Checkout = () => {
             <p className="text-sm text-gray-400 mb-2">
               Payment: {paymentMethod === 'Razorpay' ? 'Online (Razorpay)' : 'Cash on Delivery'}
             </p>
-            {selectedLocation && (
-              <p className="text-sm text-gray-400 mb-2">
-                Shipping to: {selectedLocation.name} — {formatPrice(shippingCharge)}
-              </p>
+            {orderPlaced && (
+              <>
+                <p className="text-sm text-gray-400 mb-2">
+                  Order ID: <span className="font-semibold text-text">#{orderPlaced._id.slice(-6).toUpperCase()}</span>
+                </p>
+                <p className="text-sm text-gray-400 mb-2">
+                  Shipping to: {orderPlaced.shippingAddress?.city} — {formatPrice(orderPlaced.shippingCharge)}
+                </p>
+                <p className="text-3xl font-bold text-burgundy mb-6">{formatPrice(orderPlaced.totalPrice)}</p>
+              </>
             )}
-            <p className="text-3xl font-bold text-burgundy mb-6">{formatPrice(grandTotal)}</p>
             <button
               onClick={() => navigate('/dashboard?tab=orders')}
               className="w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors"

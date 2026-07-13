@@ -112,8 +112,8 @@ const ProductDetails = () => {
                 </div>
                 <div className="bg-bg rounded-xl p-4">
                   <p className="text-xs text-gray-400 mb-1">Stock</p>
-                  <p className="text-sm font-semibold text-text">
-                    {product.stock > 0 ? `${product.stock} available` : 'Out of stock'}
+                  <p className={`text-sm font-bold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {product.stock > 0 ? 'Available' : 'Out of Stock'}
                   </p>
                 </div>
               </div>

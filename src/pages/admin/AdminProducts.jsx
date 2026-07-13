@@ -182,7 +182,7 @@ const AdminProducts = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Price (₹) *</label>
-                  <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required min="0" className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" />
+                  <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required min="0" className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">MOQ *</label>
@@ -222,6 +222,25 @@ const AdminProducts = () => {
                 <input type="file" multiple accept="image/*" onChange={(e) => setFiles([...e.target.files])}
                   className="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-burgundy/5 file:text-burgundy file:font-medium file:text-xs file:cursor-pointer" />
               </div>
+
+              {/* Selected files preview */}
+              {files.length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1 font-semibold text-burgundy">New Images Preview</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {files.map((file, i) => {
+                      const url = URL.createObjectURL(file);
+                      return (
+                        <div key={i} className="relative w-16 h-16">
+                          <img src={url} alt="" className="w-full h-full object-cover rounded-lg" />
+                          <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))}
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">×</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <button type="submit" disabled={saving} className="w-full bg-burgundy text-white py-2.5 rounded-xl text-sm font-medium hover:bg-burgundy-600 transition-colors disabled:opacity-50">
                 {saving ? 'Saving...' : editId ? 'Update Product' : 'Create Product'}

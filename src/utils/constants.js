@@ -1,7 +1,7 @@
 export const BUSINESS = {
   name: 'Rajyalaxmi Binding Works',
   shortName: 'RBW',
-  phone: '6300450725, 9030800381',
+  phone: '6300450725',
   email: 'rajyalaxmi.idsolutions@gmail.com',
   supportEmail: 'rajyalaxmi.idsolutions@gmail.com',
   location: 'https://share.google/2pfQ7BCjqfUWm95fJ',

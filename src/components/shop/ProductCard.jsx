@@ -67,6 +67,11 @@ const ProductCard = ({ product }) => {
                 MOQ: {product.moq}
               </p>
             </div>
+            <div className="mt-2.5 pt-2.5 border-t border-border/50 flex items-center justify-between">
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg ${product.stock > 0 ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+              </span>
+            </div>
           </div>
         </div>
       </Link>

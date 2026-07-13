@@ -9,6 +9,7 @@ import {
 import { formatPrice, formatDate, getStatusColor } from '../../utils/helpers';
 import useDebounce from '../../hooks/useDebounce';
 import toast from 'react-hot-toast';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
 
 const AdminCustomers = () => {
   const [customers, setCustomers] = useState([]);
@@ -26,6 +27,9 @@ const AdminCustomers = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
 
+  const [showAddPassword, setShowAddPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   // Forms state
   const [addForm, setAddForm] = useState({
     name: '',
@@ -33,6 +37,7 @@ const AdminCustomers = () => {
     email: '',
     password: '',
     businessName: '',
+    businessLocation: '',
     gstNumber: ''
   });
   const [editForm, setEditForm] = useState({
@@ -42,6 +47,7 @@ const AdminCustomers = () => {
     email: '',
     password: '',
     businessName: '',
+    businessLocation: '',
     gstNumber: ''
   });
 
@@ -92,7 +98,8 @@ const AdminCustomers = () => {
       await adminCreateCustomer(addForm);
       toast.success('Customer created successfully');
       setShowAddModal(false);
-      setAddForm({ name: '', phone: '', email: '', password: '', businessName: '', gstNumber: '' });
+      setAddForm({ name: '', phone: '', email: '', password: '', businessName: '', businessLocation: '', gstNumber: '' });
+      setShowAddPassword(false);
       fetchCustomers();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create customer');
@@ -109,8 +116,10 @@ const AdminCustomers = () => {
       email: customer.email,
       password: '', // blank by default
       businessName: customer.businessName || '',
+      businessLocation: customer.businessLocation || '',
       gstNumber: customer.gstNumber || ''
     });
+    setShowEditPassword(false);
     setShowEditModal(true);
   };
 
@@ -194,6 +203,7 @@ const AdminCustomers = () => {
                   <p className="text-xs text-gray-500 truncate">{c.email}</p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-xs text-gray-400">
                     {c.businessName && <span className="truncate">🏢 {c.businessName}</span>}
+                    {c.businessLocation && <span className="truncate">📍 {c.businessLocation}</span>}
                     {c.phone && <span>📞 {c.phone}</span>}
                   </div>
                 </div>
@@ -229,6 +239,7 @@ const AdminCustomers = () => {
                 <h3 className="text-sm font-semibold text-text">{selectedCustomer.name}</h3>
                 <p className="text-xs text-gray-400 mt-0.5">{selectedCustomer.email} • {selectedCustomer.phone}</p>
                 {selectedCustomer.businessName && <p className="text-xs text-gray-400 mt-1">Business: {selectedCustomer.businessName}</p>}
+                {selectedCustomer.businessLocation && <p className="text-xs text-gray-400">Location: {selectedCustomer.businessLocation}</p>}
                 {selectedCustomer.gstNumber && <p className="text-xs text-gray-400">GST: {selectedCustomer.gstNumber}</p>}
               </div>
               <div className="p-4 flex-1 overflow-y-auto">
@@ -296,11 +307,20 @@ const AdminCustomers = () => {
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">Login Password *</label>
-                <input required type="password" value={addForm.password} onChange={(e) => setAddForm({ ...addForm, password: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" minLength={6} />
+                <div className="relative">
+                  <input required type={showAddPassword ? 'text' : 'password'} value={addForm.password} onChange={(e) => setAddForm({ ...addForm, password: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy pr-10" minLength={6} />
+                  <button type="button" onClick={() => setShowAddPassword(!showAddPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-burgundy focus:outline-none">
+                    {showAddPassword ? <HiEyeOff className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">Business Name</label>
                 <input value={addForm.businessName} onChange={(e) => setAddForm({ ...addForm, businessName: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-gray-500 mb-1">Business Location</label>
+                <input value={addForm.businessLocation} onChange={(e) => setAddForm({ ...addForm, businessLocation: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" placeholder="City / Town" />
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">GST Number</label>
@@ -338,11 +358,20 @@ const AdminCustomers = () => {
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">Change Password (leave blank to keep current)</label>
-                <input type="password" placeholder="••••••" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" minLength={6} />
+                <div className="relative">
+                  <input type={showEditPassword ? 'text' : 'password'} placeholder="••••••" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy pr-10" minLength={6} />
+                  <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-burgundy focus:outline-none">
+                    {showEditPassword ? <HiEyeOff className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">Business Name</label>
                 <input value={editForm.businessName} onChange={(e) => setEditForm({ ...editForm, businessName: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" />
+              </div>
+              <div>
+                <label className="block text-[11px] font-medium text-gray-500 mb-1">Business Location</label>
+                <input value={editForm.businessLocation} onChange={(e) => setEditForm({ ...editForm, businessLocation: e.target.value })} className="w-full px-3 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy" />
               </div>
               <div>
                 <label className="block text-[11px] font-medium text-gray-500 mb-1">GST Number</label>
