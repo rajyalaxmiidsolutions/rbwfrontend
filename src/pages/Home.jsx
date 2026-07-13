@@ -214,7 +214,7 @@ const Home = () => {
       )}
 
       {/* Contact CTA */}
-      <section className="py-20 sm:py-24 bg-burgundy relative overflow-hidden mb-16 sm:mb-24">
+      <section className="py-20 sm:py-24 bg-burgundy relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-1/2 w-96 h-96 rounded-full bg-gold blur-3xl" />
         </div>
