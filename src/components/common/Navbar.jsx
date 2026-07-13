@@ -48,12 +48,14 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-18 sm:h-22">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 shrink-0">
-              <img src="/logo.png" alt="RBW" className="h-12 sm:h-14 w-auto" />
-            </Link>
+            <div className="flex-1 flex justify-start">
+              <Link to="/" className="flex items-center gap-3 shrink-0">
+                <img src="/logo.png" alt="RBW" className="h-12 sm:h-14 w-auto" />
+              </Link>
+            </div>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-10">
+            <div className="hidden md:flex items-center justify-center gap-10">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -67,71 +69,74 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-3">
-              {/* Search */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-full hover:bg-burgundy/5 transition-colors"
-                aria-label="Search"
-              >
-                <HiOutlineSearch className="w-6 h-6 text-text" />
-              </button>
-
-              {/* Cart */}
-              <Link
-                to="/cart"
-                className="relative p-2.5 rounded-full hover:bg-burgundy/5 transition-colors"
-              >
-                <HiOutlineShoppingBag className="w-6 h-6 text-text" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-burgundy text-white text-[11px] font-bold min-w-[20px] h-[20px] flex items-center justify-center rounded-full">
-                    {cartCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Account */}
-              {isAuthenticated ? (
-                <div className="relative group">
-                  <button className="flex items-center gap-2 text-base font-medium text-text hover:text-burgundy transition-colors p-2.5 rounded-full hover:bg-burgundy/5">
-                    <HiOutlineUser className="w-6 h-6" />
-                    <span className="hidden lg:inline">{user?.name?.split(' ')[0]}</span>
-                  </button>
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden">
-                    <Link to="/dashboard" className="block px-5 py-3.5 text-base text-text hover:bg-bg transition-colors">My Account</Link>
-                    <Link to="/dashboard?tab=orders" className="block px-5 py-3.5 text-base text-text hover:bg-bg transition-colors">My Orders</Link>
-                    <button onClick={() => { logout(); navigate('/'); }} className="w-full text-left px-5 py-3.5 text-base text-burgundy hover:bg-burgundy/5 transition-colors border-t border-border">
-                      Logout
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="bg-burgundy text-white px-6 py-2.5 rounded-xl text-base font-medium hover:bg-burgundy-600 transition-colors"
+            {/* Actions (Desktop + Mobile) */}
+            <div className="flex-1 flex justify-end items-center gap-3">
+              {/* Desktop Actions */}
+              <div className="hidden md:flex items-center gap-3">
+                {/* Search */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2.5 rounded-full hover:bg-burgundy/5 transition-colors"
+                  aria-label="Search"
                 >
-                  Login
-                </Link>
-              )}
-            </div>
+                  <HiOutlineSearch className="w-6 h-6 text-text" />
+                </button>
 
-            {/* Mobile Menu Button */}
-            <div className="flex items-center gap-3 md:hidden">
-              <button onClick={() => setSearchOpen(true)} className="p-2.5">
-                <HiOutlineSearch className="w-6 h-6 text-text" />
-              </button>
-              <Link to="/cart" className="relative p-2.5">
-                <HiOutlineShoppingBag className="w-6 h-6 text-text" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-burgundy text-white text-[11px] font-bold min-w-[20px] h-[20px] flex items-center justify-center rounded-full">
-                    {cartCount}
-                  </span>
+                {/* Cart */}
+                <Link
+                  to="/cart"
+                  className="relative p-2.5 rounded-full hover:bg-burgundy/5 transition-colors"
+                >
+                  <HiOutlineShoppingBag className="w-6 h-6 text-text" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-burgundy text-white text-[11px] font-bold min-w-[20px] h-[20px] flex items-center justify-center rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Account */}
+                {isAuthenticated ? (
+                  <div className="relative group">
+                    <button className="flex items-center gap-2 text-base font-medium text-text hover:text-burgundy transition-colors p-2.5 rounded-full hover:bg-burgundy/5">
+                      <HiOutlineUser className="w-6 h-6" />
+                      <span className="hidden lg:inline">{user?.name?.split(' ')[0]}</span>
+                    </button>
+                    <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden">
+                      <Link to="/dashboard" className="block px-5 py-3.5 text-base text-text hover:bg-bg transition-colors">My Account</Link>
+                      <Link to="/dashboard?tab=orders" className="block px-5 py-3.5 text-base text-text hover:bg-bg transition-colors">My Orders</Link>
+                      <button onClick={() => { logout(); navigate('/'); }} className="w-full text-left px-5 py-3.5 text-base text-burgundy hover:bg-burgundy/5 transition-colors border-t border-border">
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="bg-burgundy text-white px-6 py-2.5 rounded-xl text-base font-medium hover:bg-burgundy-600 transition-colors"
+                  >
+                    Login
+                  </Link>
                 )}
-              </Link>
-              <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2.5">
-                {mobileOpen ? <HiOutlineX className="w-7 h-7" /> : <HiOutlineMenu className="w-7 h-7" />}
-              </button>
+              </div>
+
+              {/* Mobile Menu Button */}
+              <div className="flex items-center gap-3 md:hidden">
+                <button onClick={() => setSearchOpen(true)} className="p-2.5">
+                  <HiOutlineSearch className="w-6 h-6 text-text" />
+                </button>
+                <Link to="/cart" className="relative p-2.5">
+                  <HiOutlineShoppingBag className="w-6 h-6 text-text" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-burgundy text-white text-[11px] font-bold min-w-[20px] h-[20px] flex items-center justify-center rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2.5">
+                  {mobileOpen ? <HiOutlineX className="w-7 h-7" /> : <HiOutlineMenu className="w-7 h-7" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>

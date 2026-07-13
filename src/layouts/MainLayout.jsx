@@ -23,6 +23,9 @@ const MainLayout = () => {
       >
         <FaWhatsapp className="w-7 h-7" />
       </a>
+
+      {/* Apple Camera UI Rounded Viewport Frame */}
+      <div className="fixed inset-2 sm:inset-4 pointer-events-none rounded-[20px] sm:rounded-[32px] border-[6px] sm:border-[12px] border-black/75 backdrop-blur-[1px] z-40 shadow-[0_0_0_9999px_rgba(0,0,0,0.05)] ring-1 ring-white/10" />
     </div>
   );
 };
