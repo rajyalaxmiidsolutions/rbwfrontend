@@ -16,9 +16,8 @@ const tabs = [
 
 // Simplified order steps
 const ORDER_STEPS = ['Paid', 'Confirmed', 'Shipped', 'Delivered'];
-
 const OrderStepper = ({ status }) => {
-  if (status === 'Cancelled' || status === 'Pending Payment') return null;
+  if (status === 'Pending Payment') return null;
 
   const currentIdx = ORDER_STEPS.indexOf(status);
 

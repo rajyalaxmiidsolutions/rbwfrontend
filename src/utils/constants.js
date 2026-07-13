@@ -9,7 +9,7 @@ export const BUSINESS = {
 };
 
 export const ORDER_STATUSES = [
-  'Pending Payment', 'Paid', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled',
+  'Pending Payment', 'Paid', 'Confirmed', 'Shipped', 'Delivered',
 ];
 
 export const INDIAN_STATES = [

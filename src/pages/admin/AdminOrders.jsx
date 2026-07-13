@@ -277,8 +277,8 @@ const AdminOrders = () => {
                             </div>
                           )}
 
-                          {/* Show existing delivery info for delivered/cancelled */}
-                          {['Delivered', 'Cancelled'].includes(order.orderStatus) && order.deliveryInfo && (
+                          {/* Show existing delivery info for delivered order */}
+                          {order.orderStatus === 'Delivered' && order.deliveryInfo && (
                             <div className="bg-white rounded-lg border border-border p-4">
                               <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Delivery Info</h4>
                               <div className="text-sm text-gray-600 space-y-1">
