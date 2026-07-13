@@ -30,7 +30,7 @@ const MainLayout = () => {
         <Navbar />
       </div>
 
-      <main className={`flex-1 ${announcements.length > 0 ? 'pt-26 sm:pt-32' : 'pt-18 sm:pt-22'}`}>
+      <main className={`flex-1 ${announcements.length > 0 ? 'pt-28 sm:pt-36' : 'pt-16 sm:pt-20'}`}>
         <Outlet />
       </main>
       <Footer />
