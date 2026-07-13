@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Brand */}
           <div>
-            <img src="/logo.png" alt="RBW" className="h-12 w-auto brightness-0 invert mb-4" />
+            <img src="/logo.png" alt="RBW" className="h-12 w-auto mb-4" />
             <p className="text-white/70 text-sm leading-relaxed">
               Online store for our wholesale customers.
             </p>

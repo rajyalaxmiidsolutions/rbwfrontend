@@ -57,7 +57,7 @@ const Contact = () => {
               {
                 icon: HiOutlineClock,
                 title: 'Business Hours',
-                detail: 'Mon - Sat: 9:00 AM - 7:00 PM',
+                detail: 'Mon - Sat: 9:00 AM - 8:00 PM',
                 action: null,
                 actionLabel: null,
               },

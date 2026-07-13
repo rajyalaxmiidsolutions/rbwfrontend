@@ -154,10 +154,10 @@ const Home = () => {
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: HiOutlineStar, title: 'Premium Quality', desc: 'Exquisite designs crafted with the finest materials and attention to detail.' },
+              { icon: HiOutlineStar, title: 'Exclusively for wholesale costumers', desc: 'we are offering an easy to use ecommerce store for our wholesale costumers' },
               { icon: HiOutlineCurrencyRupee, title: 'Wholesale Prices', desc: 'Best competitive pricing for bulk orders. Save more when you order more.' },
-              { icon: HiOutlineTruck, title: 'Pan-India Delivery', desc: 'Fast and reliable shipping to every corner of India.' },
-              { icon: HiOutlineCube, title: 'Bulk Orders', desc: 'Custom bulk orders with flexible MOQ and personalized service.' },
+              { icon: HiOutlineTruck, title: 'Delivery all over telugu states', desc: 'we deliver wholesale orders all over the telugu states' },
+              { icon: HiOutlineCube, title: 'Wide Range of Products', desc: 'we have a wide range of products for our costumers' },
             ].map((item, i) => (
               <motion.div
                 key={i}

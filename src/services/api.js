@@ -57,6 +57,7 @@ export const getProfile = () => API.get('/users/profile');
 export const updateProfile = (data) => API.put('/users/profile', data);
 export const addAddress = (data) => API.post('/users/addresses', data);
 export const deleteAddress = (id) => API.delete(`/users/addresses/${id}`);
+export const submitTestimonial = (data) => API.post('/users/testimonials', data);
 
 // Admin
 export const adminLogin = (data) => API.post('/admin/login', data);

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiOutlineCheck } from 'react-icons/hi';
+import { HiOutlineCheck, HiStar, HiOutlineStar } from 'react-icons/hi';
 import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
-import { placeOrder, verifyPayment, getLocations } from '../services/api';
+import { placeOrder, verifyPayment, getLocations, submitTestimonial } from '../services/api';
 import { formatPrice } from '../utils/helpers';
 import { INDIAN_STATES } from '../utils/constants';
 import toast from 'react-hot-toast';
@@ -19,6 +19,27 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [locations, setLocations] = useState([]);
   const [selectedLocationId, setSelectedLocationId] = useState('');
+
+  // Reviews & Rating State
+  const [rating, setRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewText.trim()) return;
+    setSubmittingReview(true);
+    try {
+      await submitTestimonial({ text: reviewText.trim(), rating });
+      setReviewSubmitted(true);
+      toast.success('Review submitted successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const [form, setForm] = useState({
     fullName: user?.name || '',
@@ -208,12 +229,67 @@ const Checkout = () => {
                 <p className="text-3xl font-bold text-burgundy mb-6">{formatPrice(orderPlaced.totalPrice)}</p>
               </>
             )}
-            <button
-              onClick={() => navigate('/dashboard?tab=orders')}
-              className="w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors"
-            >
-              View My Orders
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={() => navigate('/dashboard?tab=orders')}
+                className="w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors"
+              >
+                View My Orders
+              </button>
+
+              {/* Review and Rating Section */}
+              <div className="mt-8 pt-8 border-t border-border text-left">
+                <h3 className="text-sm font-bold text-text mb-1">Write a Review</h3>
+                <p className="text-xs text-gray-400 mb-4">
+                  We would love to hear your feedback on your buying experience!
+                </p>
+                {reviewSubmitted ? (
+                  <div className="bg-green-50 text-green-700 text-xs p-3.5 rounded-xl border border-green-200 text-center font-medium">
+                    ✓ Thank you! Your review has been submitted for admin approval.
+                  </div>
+                ) : (
+                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-500 mb-1.5">Rating</label>
+                      <div className="flex gap-1.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="text-2xl focus:outline-none transition-colors"
+                          >
+                            {star <= rating ? (
+                              <HiStar className="w-8 h-8 text-gold" />
+                            ) : (
+                              <HiOutlineStar className="w-8 h-8 text-gray-300 hover:text-gold" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-500 mb-1.5">Your Review *</label>
+                      <textarea
+                        required
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        placeholder="Share your experience with our services..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={submittingReview}
+                      className="w-full bg-burgundy/10 text-burgundy py-2.5 rounded-xl font-semibold text-sm hover:bg-burgundy hover:text-white transition-all disabled:opacity-50"
+                    >
+                      {submittingReview ? 'Submitting...' : 'Submit Review'}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
