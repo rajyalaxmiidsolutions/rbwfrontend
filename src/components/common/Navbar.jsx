@@ -55,7 +55,7 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center justify-center gap-2">
+            <div className="hidden md:flex items-center justify-center gap-6">
               {navLinks.map((link) => {
                 const active = link.to === '/' 
                   ? location.pathname === '/' 
@@ -66,7 +66,7 @@ const Navbar = () => {
                   <Link
                     key={link.to}
                     to={link.to}
-                    className={`text-sm sm:text-base font-semibold tracking-wide px-4.5 py-2 rounded-full transition-all duration-300 ${
+                    className={`text-sm sm:text-base font-semibold tracking-wide w-28 py-2.5 rounded-full text-center transition-all duration-300 ${
                       active
                         ? 'bg-burgundy/10 text-burgundy border border-burgundy/10 backdrop-blur-md shadow-sm scale-105 font-bold'
                         : 'text-text hover:text-burgundy hover:bg-black/5'
