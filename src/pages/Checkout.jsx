@@ -385,21 +385,11 @@ const Checkout = () => {
               {/* Payment Method */}
               <div className="bg-white rounded-2xl border border-border p-7">
                 <h3 className="text-lg font-semibold text-text mb-5">Payment Method</h3>
-                <div className="space-y-3">
-                  <label className={`flex items-center gap-4 px-5 py-4 rounded-xl border cursor-pointer transition-colors ${paymentMethod === 'Razorpay' ? 'border-burgundy bg-burgundy/5' : 'border-border hover:bg-bg'}`}>
-                    <input type="radio" name="payment" value="Razorpay" checked={paymentMethod === 'Razorpay'} onChange={(e) => setPaymentMethod(e.target.value)} className="accent-burgundy w-4 h-4" />
-                    <div className="flex flex-col">
-                      <span className="text-base font-medium">Pay Online</span>
-                      <span className="text-sm text-gray-400">UPI, Cards, NetBanking & Wallets via Razorpay</span>
-                    </div>
-                  </label>
-                  <label className={`flex items-center gap-4 px-5 py-4 rounded-xl border cursor-pointer transition-colors ${paymentMethod === 'COD' ? 'border-burgundy bg-burgundy/5' : 'border-border hover:bg-bg'}`}>
-                    <input type="radio" name="payment" value="COD" checked={paymentMethod === 'COD'} onChange={(e) => setPaymentMethod(e.target.value)} className="accent-burgundy w-4 h-4" />
-                    <div className="flex flex-col">
-                      <span className="text-base font-medium">Cash on Delivery</span>
-                      <span className="text-sm text-gray-400">Pay when your order arrives</span>
-                    </div>
-                  </label>
+                <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-burgundy bg-burgundy/5">
+                  <div className="flex flex-col">
+                    <span className="text-base font-medium text-burgundy">Pay Online</span>
+                    <span className="text-sm text-gray-500">UPI, Cards, NetBanking & Wallets securely via Razorpay</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -442,7 +432,7 @@ const Checkout = () => {
                   disabled={loading}
                   className="mt-6 w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'Processing...' : paymentMethod === 'Razorpay' ? `Pay ${formatPrice(grandTotal)}` : `Place Order (COD) — ${formatPrice(grandTotal)}`}
+                  {loading ? 'Processing...' : `Pay ${formatPrice(grandTotal)}`}
                 </button>
               </div>
             </div>
