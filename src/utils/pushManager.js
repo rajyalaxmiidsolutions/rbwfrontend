@@ -65,10 +65,12 @@ export async function subscribeUserToPush(isAdmin = false) {
     }
 
     // Save subscription to the backend database
+    const subscriptionJSON = subscription.toJSON();
+
     if (isAdmin) {
-      await subscribeAdminPush(subscription);
+      await subscribeAdminPush(subscriptionJSON);
     } else {
-      await subscribePush(subscription);
+      await subscribePush(subscriptionJSON);
     }
 
     console.log('User successfully subscribed to push notifications.');

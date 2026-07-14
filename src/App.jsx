@@ -61,7 +61,7 @@ const App = () => {
     const isUserLoggedIn = isAuthenticated || !!adminToken;
     if (isUserLoggedIn) {
       const permission = getNotificationPermissionState();
-      if (permission === 'default') {
+      if (permission === 'default' || permission === 'granted') {
         const timer = setTimeout(() => {
           subscribeUserToPush(!!adminToken || isAdmin);
         }, 3000); // Trigger after 3 seconds for better loading flow
