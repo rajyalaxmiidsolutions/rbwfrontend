@@ -19,6 +19,22 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Client-side query cache and request deduplicator (Expires in 30 seconds)
+const getCache = {};
+const cachedGet = (url, config) => {
+  const cacheKey = url + (config ? JSON.stringify(config) : '');
+  const cached = getCache[cacheKey];
+  const now = Date.now();
+
+  if (cached && (now - cached.time < 30000)) {
+    return cached.promise;
+  }
+
+  const promise = API.get(url, config);
+  getCache[cacheKey] = { promise, time: now };
+  return promise;
+};
+
 // Auth
 export const signup = (data) => API.post('/auth/signup', data);
 export const verifyOTP = (data) => API.post('/auth/verify-otp', data);
@@ -41,13 +57,13 @@ export const getProduct = (id) => API.get(`/products/${id}`);
 export const getRelatedProducts = (id) => API.get(`/products/related/${id}`);
 
 // Categories
-export const getCategories = () => API.get('/categories');
+export const getCategories = () => cachedGet('/categories');
 
 // Locations (public — for checkout)
-export const getLocations = () => API.get('/locations');
+export const getLocations = () => cachedGet('/locations');
 
 // Testimonials (public — for homepage)
-export const getTestimonials = () => API.get('/testimonials');
+export const getTestimonials = () => cachedGet('/testimonials');
 
 // Cart
 export const getCart = () => API.get('/cart');
@@ -128,7 +144,7 @@ export const adminDeleteCustomer = (id) => API.delete(`/admin/customers/${id}`);
 export const adminGetCustomerOrders = (id) => API.get(`/admin/customers/${id}/orders`);
 
 // Announcements
-export const getActiveAnnouncements = () => API.get('/announcements/active');
+export const getActiveAnnouncements = () => cachedGet('/announcements/active');
 export const getPublicAnnouncements = () => API.get('/announcements/public-all');
 export const adminGetAnnouncements = () => API.get('/admin/announcements');
 export const adminCreateAnnouncement = (data) => API.post('/admin/announcements', data, {
