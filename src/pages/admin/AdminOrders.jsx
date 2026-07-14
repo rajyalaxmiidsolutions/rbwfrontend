@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import { 
   adminGetOrders, 
   adminUpdateOrderStatus, 
@@ -388,53 +388,307 @@ const AdminOrders = () => {
                 {orders.map((order) => {
                   const formatted = formatFullDateTime(order.createdAt);
                   return (
-                    <tr key={order._id} className={`hover:bg-bg/40 cursor-pointer transition-colors ${expandedOrder === order._id ? 'bg-bg/40' : ''}`} onClick={() => toggleExpand(order)}>
-                      <td className="px-5 py-4 font-semibold text-sm">#{order._id.slice(-6).toUpperCase()}</td>
-                      <td className="px-5 py-4">
-                        <p className="font-semibold block text-sm">{order.user?.name || '—'}</p>
-                        <p className="text-xs text-gray-400 block mt-0.5">{order.user?.email}</p>
-                      </td>
-                      <td className="px-5 py-4 text-gray-500 text-sm">
-                        {order.products?.reduce((acc, p) => acc + p.quantity, 0)} item(s)
-                      </td>
-                      <td className="px-5 py-4 text-sm max-w-[200px]">
-                        {order.products?.map((p, idx) => (
-                          <div key={idx} className="truncate text-xs" title={`${p.name} × ${p.quantity}`}>
-                            <span className="font-semibold text-text">{p.name}</span>
-                            <span className="text-gray-400 font-medium ml-1">×{p.quantity}</span>
-                          </div>
-                        ))}
-                      </td>
-                      <td className="px-5 py-4 text-sm">
-                        {order.shippingCharge > 0 ? (
-                          <span className="font-semibold">{formatPrice(order.shippingCharge)}</span>
-                        ) : (
-                          <span className="text-xs text-amber-600 font-semibold">Not set</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4 font-bold text-burgundy text-sm">{formatPrice(order.totalPrice)}</td>
-                      <td className="px-5 py-4 text-sm text-gray-600">{order.paymentMethod}</td>
-                      <td className="px-5 py-4">
-                        <span className="font-semibold block text-sm">{formatted.date}</span>
-                        <span className="text-xs text-gray-400 block mt-0.5">{formatted.time}</span>
-                      </td>
-                      <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                        <select
-                          value={order.orderStatus}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold border-0 appearance-none cursor-pointer ${getStatusColor(order.orderStatus)}`}
-                        >
-                          {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                      </td>
-                      <td className="px-4 py-4 text-right">
-                        {expandedOrder === order._id ? (
-                          <HiOutlineChevronUp className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <HiOutlineChevronDown className="w-5 h-5 text-gray-400" />
-                        )}
-                      </td>
-                    </tr>
+                    <Fragment key={order._id}>
+                      <tr className={`hover:bg-bg/40 cursor-pointer transition-colors ${expandedOrder === order._id ? 'bg-bg/40 font-semibold' : ''}`} onClick={() => toggleExpand(order)}>
+                        <td className="px-5 py-4 font-semibold text-sm">#{order._id.slice(-6).toUpperCase()}</td>
+                        <td className="px-5 py-4">
+                          <p className="font-semibold block text-sm">{order.user?.name || '—'}</p>
+                          <p className="text-xs text-gray-400 block mt-0.5">{order.user?.email}</p>
+                        </td>
+                        <td className="px-5 py-4 text-gray-500 text-sm">
+                          {order.products?.reduce((acc, p) => acc + p.quantity, 0)} item(s)
+                        </td>
+                        <td className="px-5 py-4 text-sm max-w-[200px]">
+                          {order.products?.map((p, idx) => (
+                            <div key={idx} className="truncate text-xs" title={`${p.name} × ${p.quantity}`}>
+                              <span className="font-semibold text-text">{p.name}</span>
+                              <span className="text-gray-400 font-medium ml-1">×{p.quantity}</span>
+                            </div>
+                          ))}
+                        </td>
+                        <td className="px-5 py-4 text-sm">
+                          {order.shippingCharge > 0 ? (
+                            <span className="font-semibold">{formatPrice(order.shippingCharge)}</span>
+                          ) : (
+                            <span className="text-xs text-amber-600 font-semibold">Not set</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-4 font-bold text-burgundy text-sm">{formatPrice(order.totalPrice)}</td>
+                        <td className="px-5 py-4 text-sm text-gray-600">{order.paymentMethod}</td>
+                        <td className="px-5 py-4">
+                          <span className="font-semibold block text-sm">{formatted.date}</span>
+                          <span className="text-xs text-gray-400 block mt-0.5">{formatted.time}</span>
+                        </td>
+                        <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                          <select
+                            value={order.orderStatus}
+                            onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold border-0 appearance-none cursor-pointer ${getStatusColor(order.orderStatus)}`}
+                          >
+                            {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          {expandedOrder === order._id ? (
+                            <HiOutlineChevronUp className="w-5 h-5 text-gray-400" />
+                          ) : (
+                            <HiOutlineChevronDown className="w-5 h-5 text-gray-400" />
+                          )}
+                        </td>
+                      </tr>
+                      {expandedOrder === order._id && (
+                        <tr className="bg-gray-50/50 hover:bg-transparent">
+                          <td colSpan={10} className="px-5 py-6 border-b border-border">
+                            <div className="bg-white border border-border rounded-2xl p-6 space-y-6 animate-fadeIn text-left font-normal" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex justify-between items-center pb-4 border-b border-border">
+                                <h3 className="text-base font-bold text-text">Order Detail (Last 6 Digits: #{order._id.slice(-6).toUpperCase()})</h3>
+                                <button onClick={() => setExpandedOrder(null)} className="text-gray-400 hover:text-burgundy">
+                                  <HiOutlineX className="w-6 h-6" />
+                                </button>
+                              </div>
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Left: Order Items & Shipping address */}
+                                <div className="space-y-6">
+                                  <div>
+                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Items</h4>
+                                    <div className="divide-y divide-border border border-border rounded-xl bg-white p-4 space-y-1">
+                                      {order.products.map((item, i) => (
+                                        <div key={i} className="flex justify-between text-sm py-2 last:pb-0 first:pt-0">
+                                          <span className="text-gray-600 font-semibold">{item.product?.name || item.name} &times; {item.quantity}</span>
+                                          <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="bg-white rounded-xl border border-border p-4">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <HiOutlineLocationMarker className="w-4 h-4 text-burgundy" />
+                                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Shipping Address</h4>
+                                    </div>
+                                    <div className="text-sm text-gray-600 space-y-1">
+                                      <p className="font-semibold">{order.shippingAddress?.fullName}</p>
+                                      <p>{order.shippingAddress?.street}</p>
+                                      <p>{order.shippingAddress?.city}, {order.shippingAddress?.state} — {order.shippingAddress?.pincode}</p>
+                                      <p>📞 {order.shippingAddress?.phone}</p>
+                                      <p>✉️ {order.shippingAddress?.email}</p>
+                                      {order.shippingAddress?.businessName && <p>🏢 {order.shippingAddress.businessName}</p>}
+                                      {order.shippingAddress?.gstNumber && <p>GST: {order.shippingAddress.gstNumber}</p>}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right: Actions / Delivery Info */}
+                                <div className="space-y-6">
+                                  {['Paid', 'Confirmed', 'Shipped'].includes(order.orderStatus) && (
+                                    <div className="bg-white rounded-xl border border-blue-200 p-5 shadow-sm">
+                                      <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-4">Delivery Information</h4>
+                                      <div className="space-y-4">
+                                        <div>
+                                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
+                                          <input
+                                            value={deliveryForm.trackingNumber}
+                                            onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
+                                            placeholder="e.g. AWB12345678"
+                                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
+                                          <input
+                                            value={deliveryForm.receivingSpot}
+                                            onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
+                                            placeholder="e.g. Front gate, warehouse entrance"
+                                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                          />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                          <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
+                                            <input
+                                              value={deliveryForm.deliveryBoyName}
+                                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
+                                              placeholder="Name"
+                                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
+                                            <input
+                                              value={deliveryForm.deliveryBoyPhone}
+                                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
+                                              placeholder="Phone number"
+                                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
+                                          <textarea
+                                            value={deliveryForm.deliveryNotes}
+                                            onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
+                                            placeholder="Any special instructions..."
+                                            rows={2}
+                                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
+                                          />
+                                        </div>
+                                        <div className="flex gap-3 pt-2">
+                                          <button
+                                            onClick={() => handleSaveDeliveryInfo(order, order._id)}
+                                            disabled={savingDelivery}
+                                            className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                                          >
+                                            Save Draft Info
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeliverAndNotify(order._id)}
+                                            disabled={savingDelivery}
+                                            className="flex-1 px-4 py-2.5 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
+                                          >
+                                            {savingDelivery ? 'Processing...' : 'Deliver & Send Bill'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {order.orderStatus === 'Delivered' && order.deliveryInfo && (
+                                    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+                                      <div className="flex justify-between items-center pb-2 border-b border-border">
+                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery Info</h4>
+                                        {(() => {
+                                          const deliveredTime = order.deliveredAt ? new Date(order.deliveredAt).getTime() : new Date(order.updatedAt).getTime();
+                                          const timeElapsedMs = Date.now() - deliveredTime;
+                                          const hoursElapsed = timeElapsedMs / (1000 * 60 * 60);
+                                          const editsRemaining = 2 - (order.deliveryInfoEditCount || 0);
+                                          const isEditAllowed = hoursElapsed < 2 && editsRemaining > 0;
+                                          const minsRemaining = Math.max(0, Math.ceil(120 - timeElapsedMs / 60000));
+
+                                          if (isEditingDelivered) return null;
+
+                                          return (
+                                            <div className="text-right">
+                                              {isEditAllowed ? (
+                                                <div className="flex items-center gap-3">
+                                                  <span className="text-xs text-amber-600 font-medium">
+                                                    {editsRemaining} edit(s) left ({minsRemaining}m left)
+                                                  </span>
+                                                  <button
+                                                    onClick={() => {
+                                                      setDeliveryForm({
+                                                        receivingSpot: order.deliveryInfo.receivingSpot || '',
+                                                        deliveryBoyPhone: order.deliveryInfo.deliveryBoyPhone || '',
+                                                        deliveryBoyName: order.deliveryInfo.deliveryBoyName || '',
+                                                        deliveryNotes: order.deliveryInfo.deliveryNotes || '',
+                                                        trackingNumber: order.deliveryInfo.trackingNumber || '',
+                                                      });
+                                                      setIsEditingDelivered(true);
+                                                    }}
+                                                    className="text-xs bg-burgundy/10 text-burgundy hover:bg-burgundy hover:text-white px-2.5 py-1 rounded-lg font-semibold transition-all duration-200"
+                                                  >
+                                                    Edit Info
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                <span className="text-[11px] text-gray-400 font-medium">
+                                                  {editsRemaining <= 0 ? 'Edit limit reached' : 'Edit window expired (2h)'}
+                                                </span>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
+                                      </div>
+
+                                      {isEditingDelivered ? (
+                                        <div className="space-y-4">
+                                          <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
+                                            <input
+                                              value={deliveryForm.trackingNumber}
+                                              onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
+                                              placeholder="Tracking number"
+                                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
+                                            <input
+                                              value={deliveryForm.receivingSpot}
+                                              onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
+                                              placeholder="Receiving spot location details"
+                                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                            />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
+                                              <input
+                                                value={deliveryForm.deliveryBoyName}
+                                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
+                                                placeholder="Name"
+                                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
+                                              <input
+                                                value={deliveryForm.deliveryBoyPhone}
+                                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
+                                                placeholder="Phone number"
+                                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                                              />
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
+                                            <textarea
+                                              value={deliveryForm.deliveryNotes}
+                                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
+                                              placeholder="Any special instructions..."
+                                              rows={2}
+                                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
+                                            />
+                                          </div>
+                                          <div className="flex gap-3 pt-2">
+                                            <button
+                                              onClick={() => setIsEditingDelivered(false)}
+                                              className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-xs font-semibold transition-colors"
+                                            >
+                                              Cancel
+                                            </button>
+                                            <button
+                                              onClick={() => handleSaveDeliveryInfo(order, order._id)}
+                                              disabled={savingDelivery}
+                                              className="flex-1 px-4 py-2 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                                            >
+                                              {savingDelivery ? 'Saving...' : 'Save Changes'}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="text-sm text-gray-600 space-y-1.5 pt-1">
+                                          <p>📦 Tracking: {order.deliveryInfo.trackingNumber || '—'}</p>
+                                          <p>📍 Spot: {order.deliveryInfo.receivingSpot || '—'}</p>
+                                          <p>👤 Delivery Boy: {order.deliveryInfo.deliveryBoyName || '—'}</p>
+                                          <p>📞 Phone: {order.deliveryInfo.deliveryBoyPhone || '—'}</p>
+                                          <p>📝 Notes: {order.deliveryInfo.deliveryNotes || '—'}</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {order.orderStatus === 'Pending Payment' && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-700 font-medium">
+                                      ⏳ Waiting for customer to complete payment via Razorpay.
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })}
               </tbody>
@@ -442,262 +696,6 @@ const AdminOrders = () => {
           )}
         </div>
       </div>
-
-      {/* Expanded detail row placement - render inline or absolute depending on layout */}
-      {expandedOrder && !loading && (
-        (() => {
-          const order = orders.find(o => o._id === expandedOrder);
-          if (!order) return null;
-          return (
-            <div className="bg-bg/40 border border-border rounded-2xl p-6 space-y-6 animate-fadeIn">
-              <div className="flex justify-between items-center pb-4 border-b border-border">
-                <h3 className="text-base font-bold text-text">Order Detail (Last 6 Digits: #{order._id.slice(-6).toUpperCase()})</h3>
-                <button onClick={() => setExpandedOrder(null)} className="text-gray-400 hover:text-burgundy">
-                  <HiOutlineX className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left: Order Items & Shipping address */}
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Items</h4>
-                    <div className="divide-y divide-border border border-border rounded-xl bg-white p-4 space-y-1">
-                      {order.products.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm py-2 last:pb-0 first:pt-0">
-                          <span className="text-gray-600 font-semibold">{item.product?.name || item.name} &times; {item.quantity}</span>
-                          <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl border border-border p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <HiOutlineLocationMarker className="w-4 h-4 text-burgundy" />
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Shipping Address</h4>
-                    </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p className="font-semibold">{order.shippingAddress?.fullName}</p>
-                      <p>{order.shippingAddress?.street}</p>
-                      <p>{order.shippingAddress?.city}, {order.shippingAddress?.state} — {order.shippingAddress?.pincode}</p>
-                      <p>📞 {order.shippingAddress?.phone}</p>
-                      <p>✉️ {order.shippingAddress?.email}</p>
-                      {order.shippingAddress?.businessName && <p>🏢 {order.shippingAddress.businessName}</p>}
-                      {order.shippingAddress?.gstNumber && <p>GST: {order.shippingAddress.gstNumber}</p>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Actions / Delivery Info */}
-                <div className="space-y-6">
-                  {['Paid', 'Confirmed', 'Shipped'].includes(order.orderStatus) && (
-                    <div className="bg-white rounded-xl border border-blue-200 p-5 shadow-sm">
-                      <h4 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-4">Delivery Information</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
-                          <input
-                            value={deliveryForm.trackingNumber}
-                            onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
-                            placeholder="e.g. AWB12345678"
-                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
-                          <input
-                            value={deliveryForm.receivingSpot}
-                            onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
-                            placeholder="e.g. Front gate, warehouse entrance"
-                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
-                            <input
-                              value={deliveryForm.deliveryBoyName}
-                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
-                              placeholder="Name"
-                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
-                            <input
-                              value={deliveryForm.deliveryBoyPhone}
-                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
-                              placeholder="Phone number"
-                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
-                          <textarea
-                            value={deliveryForm.deliveryNotes}
-                            onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
-                            placeholder="Any special instructions..."
-                            rows={2}
-                            className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
-                          />
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <button
-                            onClick={() => handleSaveDeliveryInfo(order, order._id)}
-                            disabled={savingDelivery}
-                            className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
-                          >
-                            Save Draft Info
-                          </button>
-                          <button
-                            onClick={() => handleDeliverAndNotify(order._id)}
-                            disabled={savingDelivery}
-                            className="flex-1 px-4 py-2.5 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
-                          >
-                            {savingDelivery ? 'Processing...' : 'Deliver & Send Bill'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {order.orderStatus === 'Delivered' && order.deliveryInfo && (
-                    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
-                      <div className="flex justify-between items-center pb-2 border-b border-border">
-                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery Info</h4>
-                        {(() => {
-                          const deliveredTime = order.deliveredAt ? new Date(order.deliveredAt).getTime() : new Date(order.updatedAt).getTime();
-                          const timeElapsedMs = Date.now() - deliveredTime;
-                          const hoursElapsed = timeElapsedMs / (1000 * 60 * 60);
-                          const editsRemaining = 2 - (order.deliveryInfoEditCount || 0);
-                          const isEditAllowed = hoursElapsed < 2 && editsRemaining > 0;
-                          const minsRemaining = Math.max(0, Math.ceil(120 - timeElapsedMs / 60000));
-
-                          if (isEditingDelivered) return null;
-
-                          return (
-                            <div className="text-right">
-                              {isEditAllowed ? (
-                                <div className="flex items-center gap-3">
-                                  <span className="text-xs text-amber-600 font-medium">
-                                    {editsRemaining} edit(s) left ({minsRemaining}m left)
-                                  </span>
-                                  <button
-                                    onClick={() => {
-                                      setDeliveryForm({
-                                        receivingSpot: order.deliveryInfo.receivingSpot || '',
-                                        deliveryBoyPhone: order.deliveryInfo.deliveryBoyPhone || '',
-                                        deliveryBoyName: order.deliveryInfo.deliveryBoyName || '',
-                                        deliveryNotes: order.deliveryInfo.deliveryNotes || '',
-                                        trackingNumber: order.deliveryInfo.trackingNumber || '',
-                                      });
-                                      setIsEditingDelivered(true);
-                                    }}
-                                    className="text-xs bg-burgundy/10 text-burgundy hover:bg-burgundy hover:text-white px-2.5 py-1 rounded-lg font-semibold transition-all duration-200"
-                                  >
-                                    Edit Info
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-[11px] text-gray-400 font-medium">
-                                  {editsRemaining <= 0 ? 'Edit limit reached' : 'Edit window expired (2h)'}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })()}
-                      </div>
-
-                      {isEditingDelivered ? (
-                        <div className="space-y-4 pt-1">
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
-                            <input
-                              value={deliveryForm.trackingNumber}
-                              onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
-                              placeholder="e.g. AWB12345678"
-                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
-                            <input
-                              value={deliveryForm.receivingSpot}
-                              onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
-                              placeholder="e.g. Front gate, warehouse entrance"
-                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
-                              <input
-                                value={deliveryForm.deliveryBoyName}
-                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
-                                placeholder="Name"
-                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
-                              <input
-                                value={deliveryForm.deliveryBoyPhone}
-                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
-                                placeholder="Phone number"
-                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
-                            <textarea
-                              value={deliveryForm.deliveryNotes}
-                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
-                              placeholder="Any special instructions..."
-                              rows={2}
-                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
-                            />
-                          </div>
-                          <div className="flex gap-3 pt-2">
-                            <button
-                              onClick={() => setIsEditingDelivered(false)}
-                              className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-xs font-semibold transition-colors"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={() => handleSaveDeliveryInfo(order, order._id)}
-                              disabled={savingDelivery}
-                              className="flex-1 px-4 py-2 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
-                            >
-                              {savingDelivery ? 'Saving...' : 'Save Changes'}
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-600 space-y-1.5 pt-1">
-                          <p>📦 Tracking: {order.deliveryInfo.trackingNumber || '—'}</p>
-                          <p>📍 Spot: {order.deliveryInfo.receivingSpot || '—'}</p>
-                          <p>👤 Delivery Boy: {order.deliveryInfo.deliveryBoyName || '—'}</p>
-                          <p>📞 Phone: {order.deliveryInfo.deliveryBoyPhone || '—'}</p>
-                          <p>📝 Notes: {order.deliveryInfo.deliveryNotes || '—'}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {order.orderStatus === 'Pending Payment' && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-700 font-medium">
-                      ⏳ Waiting for customer to complete payment via Razorpay.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })()
-      )}
 
       {/* Pagination Footer */}
       {!loading && totalPages > 1 && (
