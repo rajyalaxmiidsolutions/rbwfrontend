@@ -5,6 +5,7 @@ import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
 import { formatPrice } from '../utils/helpers';
 import Loader from '../components/common/Loader';
+import AnnouncementBanner from '../components/common/AnnouncementBanner';
 
 const Cart = () => {
   const { items, loading, cartTotal, updateQuantity, removeFromCart } = useCart();
@@ -48,6 +49,10 @@ const Cart = () => {
         >
           Shopping Cart ({items.length})
         </motion.h1>
+
+        <div className="mb-6">
+          <AnnouncementBanner page="Cart" />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}

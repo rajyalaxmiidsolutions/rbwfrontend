@@ -6,6 +6,7 @@ import ProductCard from '../components/shop/ProductCard';
 import Loader from '../components/common/Loader';
 import { getProducts, getCategories } from '../services/api';
 import useDebounce from '../hooks/useDebounce';
+import AnnouncementBanner from '../components/common/AnnouncementBanner';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -70,6 +71,8 @@ const Shop = () => {
           <p className="mt-2 text-white/60 text-sm">Explore our premium wedding invitation cards</p>
         </div>
       </div>
+
+      <AnnouncementBanner page="Shop" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search & Filter Bar */}

@@ -11,8 +11,7 @@ const sidebarLinks = [
   { to: '/admin/customers', label: 'Customers', icon: HiOutlineUsers },
   { to: '/admin/locations', label: 'Locations', icon: HiOutlineLocationMarker },
   { to: '/admin/testimonials', label: 'Testimonials', icon: HiOutlineChatAlt },
-  { to: '/admin/gallery', label: 'Gallery', icon: HiOutlinePhotograph },
-  { to: '/admin/announcements', label: 'Announcements', icon: HiOutlineVolumeUp },
+  { to: '/admin/gallery', label: 'Gallery & Announcements', icon: HiOutlinePhotograph },
   { to: '/admin/settings', label: 'Settings', icon: HiOutlineCog },
 ];
 

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { HiOutlinePhone, HiOutlineMail, HiOutlineLocationMarker, HiOutlineClock } from 'react-icons/hi';
 import { BUSINESS } from '../utils/constants';
+import AnnouncementBanner from '../components/common/AnnouncementBanner';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -94,6 +95,9 @@ const Contact = () => {
             {/* Form */}
             <motion.div {...fadeUp}>
               <div className="bg-white rounded-2xl border border-border p-7 sm:p-10">
+                <div className="mb-6">
+                  <AnnouncementBanner page="Contact" />
+                </div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-text mb-2">Send us a Message</h2>
                 <p className="text-base text-gray-500 mb-8">Fill in the form below and we'll get back to you shortly.</p>
                 <form

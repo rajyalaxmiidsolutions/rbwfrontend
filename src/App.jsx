@@ -33,10 +33,9 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminLocations = lazy(() => import('./pages/admin/AdminLocations'));
 const AdminTestimonials = lazy(() => import('./pages/admin/AdminTestimonials'));
 const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
-const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'));
 
 const Contact = lazy(() => import('./pages/Contact'));
-const Gallery = lazy(() => import('./pages/Gallery'));
+const Updates = lazy(() => import('./pages/Updates'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const App = () => {
@@ -50,7 +49,7 @@ const App = () => {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/updates" element={<Updates />} />
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         </Route>
@@ -75,7 +74,6 @@ const App = () => {
           <Route path="/admin/locations" element={<AdminLocations />} />
           <Route path="/admin/testimonials" element={<AdminTestimonials />} />
           <Route path="/admin/gallery" element={<AdminGallery />} />
-          <Route path="/admin/announcements" element={<AdminAnnouncements />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
 

@@ -21,7 +21,7 @@ const Footer = () => {
             <div className="space-y-3">
               <Link to="/" className="block text-sm text-white/70 hover:text-white transition-colors">Home</Link>
               <Link to="/shop" className="block text-sm text-white/70 hover:text-white transition-colors">Shop</Link>
-              <Link to="/gallery" className="block text-sm text-white/70 hover:text-white transition-colors">Gallery</Link>
+              <Link to="/updates" className="block text-sm text-white/70 hover:text-white transition-colors">Updates</Link>
               <Link to="/contact" className="block text-sm text-white/70 hover:text-white transition-colors">Contact</Link>
               <Link to="/cart" className="block text-sm text-white/70 hover:text-white transition-colors">Cart</Link>
               <Link to="/dashboard" className="block text-sm text-white/70 hover:text-white transition-colors">My Account</Link>

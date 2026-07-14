@@ -120,6 +120,7 @@ export const adminGetCustomerOrders = (id) => API.get(`/admin/customers/${id}/or
 
 // Announcements
 export const getActiveAnnouncements = () => API.get('/announcements/active');
+export const getPublicAnnouncements = () => API.get('/announcements/public-all');
 export const adminGetAnnouncements = () => API.get('/announcements');
 export const adminCreateAnnouncement = (data) => API.post('/announcements', data);
 export const adminUpdateAnnouncement = (id, data) => API.put(`/announcements/${id}`, data);
