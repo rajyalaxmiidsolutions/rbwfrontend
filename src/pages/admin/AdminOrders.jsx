@@ -375,7 +375,7 @@ const AdminOrders = () => {
                   <th className="px-5 py-4">Order ID</th>
                   <th className="px-5 py-4">Customer</th>
                   <th className="px-5 py-4">Items</th>
-                  <th className="px-5 py-4">Product</th>
+                  <th className="px-5 py-4">Product(s) & Qty</th>
                   <th className="px-5 py-4">Shipping</th>
                   <th className="px-5 py-4">Total</th>
                   <th className="px-5 py-4">Payment</th>
@@ -394,8 +394,17 @@ const AdminOrders = () => {
                         <p className="font-semibold block text-sm">{order.user?.name || '—'}</p>
                         <p className="text-xs text-gray-400 block mt-0.5">{order.user?.email}</p>
                       </td>
-                      <td className="px-5 py-4 text-gray-500 text-sm">{order.products?.length} item(s)</td>
-                      <td className="px-5 py-4 font-semibold text-sm">{formatPrice(order.productTotal)}</td>
+                      <td className="px-5 py-4 text-gray-500 text-sm">
+                        {order.products?.reduce((acc, p) => acc + p.quantity, 0)} item(s)
+                      </td>
+                      <td className="px-5 py-4 text-sm max-w-[200px]">
+                        {order.products?.map((p, idx) => (
+                          <div key={idx} className="truncate text-xs" title={`${p.name} × ${p.quantity}`}>
+                            <span className="font-semibold text-text">{p.name}</span>
+                            <span className="text-gray-400 font-medium ml-1">×{p.quantity}</span>
+                          </div>
+                        ))}
+                      </td>
                       <td className="px-5 py-4 text-sm">
                         {order.shippingCharge > 0 ? (
                           <span className="font-semibold">{formatPrice(order.shippingCharge)}</span>
