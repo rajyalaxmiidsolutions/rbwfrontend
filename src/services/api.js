@@ -8,11 +8,7 @@ const API = axios.create({
 // Attach JWT token to every request
 API.interceptors.request.use((config) => {
   // Use admin token for admin routes, user token for everything else
-  const isAdminRoute = 
-    config.url?.startsWith('/admin') || 
-    (config.url?.startsWith('/announcements') && 
-     !config.url.startsWith('/announcements/active') && 
-     !config.url.startsWith('/announcements/public-all'));
+  const isAdminRoute = config.url?.startsWith('/admin');
   const token = isAdminRoute
     ? localStorage.getItem('rbw_admin_token')
     : localStorage.getItem('rbw_token');
@@ -125,9 +121,9 @@ export const adminGetCustomerOrders = (id) => API.get(`/admin/customers/${id}/or
 // Announcements
 export const getActiveAnnouncements = () => API.get('/announcements/active');
 export const getPublicAnnouncements = () => API.get('/announcements/public-all');
-export const adminGetAnnouncements = () => API.get('/announcements');
-export const adminCreateAnnouncement = (data) => API.post('/announcements', data);
-export const adminUpdateAnnouncement = (id, data) => API.put(`/announcements/${id}`, data);
-export const adminDeleteAnnouncement = (id) => API.delete(`/announcements/${id}`);
+export const adminGetAnnouncements = () => API.get('/admin/announcements');
+export const adminCreateAnnouncement = (data) => API.post('/admin/announcements', data);
+export const adminUpdateAnnouncement = (id, data) => API.put(`/admin/announcements/${id}`, data);
+export const adminDeleteAnnouncement = (id) => API.delete(`/admin/announcements/${id}`);
 
 export default API;
