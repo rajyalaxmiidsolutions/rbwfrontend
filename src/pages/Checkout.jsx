@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { HiOutlineCheck, HiStar, HiOutlineStar } from 'react-icons/hi';
 import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
-import { placeOrder, verifyPayment, getLocations, submitTestimonial } from '../services/api';
+import { placeOrder, verifyPayment, getLocations, submitTestimonial, getStoreStatus } from '../services/api';
 import { formatPrice } from '../utils/helpers';
 import { INDIAN_STATES } from '../utils/constants';
 import toast from 'react-hot-toast';
@@ -19,6 +19,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('Razorpay');
   const [locations, setLocations] = useState([]);
   const [selectedLocationId, setSelectedLocationId] = useState('');
+  const [storeStatus, setStoreStatus] = useState({ maintenanceMode: false, maintenanceMessage: '' });
 
   // Reviews & Rating State
   const [rating, setRating] = useState(5);
@@ -57,9 +58,10 @@ const Checkout = () => {
     if (items.length === 0 && !orderPlaced) navigate('/cart');
   }, [items]);
 
-  // Load locations
+  // Load locations and store status
   useEffect(() => {
     getLocations().then((res) => setLocations(res.data)).catch(() => {});
+    getStoreStatus().then((res) => setStoreStatus(res.data)).catch(() => {});
   }, []);
 
   // Pre-fill from saved addresses
@@ -427,12 +429,18 @@ const Checkout = () => {
                     <span className="font-bold text-burgundy">{formatPrice(grandTotal)}</span>
                   </div>
                 </div>
+                {storeStatus.maintenanceMode && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mt-6 text-xs text-left">
+                    <h4 className="font-bold mb-1">Store Temporarily Under Maintenance</h4>
+                    <p>{storeStatus.maintenanceMessage || 'We are temporarily unable to accept new orders. Please try again later.'}</p>
+                  </div>
+                )}
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="mt-6 w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors disabled:opacity-50"
+                  disabled={loading || storeStatus.maintenanceMode}
+                  className="mt-6 w-full bg-burgundy text-white py-3.5 rounded-xl font-semibold text-base hover:bg-burgundy-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Processing...' : `Pay ${formatPrice(grandTotal)}`}
+                  {loading ? 'Processing...' : storeStatus.maintenanceMode ? 'Store in Maintenance' : `Pay ${formatPrice(grandTotal)}`}
                 </button>
               </div>
             </div>

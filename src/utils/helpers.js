@@ -45,3 +45,13 @@ export const optimizeCloudinaryUrl = (url, width) => {
   const transformations = width ? `/f_auto,q_auto,w_${width}` : '/f_auto,q_auto';
   return prefix + transformations + suffix;
 };
+
+export const maskEmail = (email) => {
+  if (!email || typeof email !== 'string') return '';
+  const [local, domain] = email.split('@');
+  if (!domain) return email;
+  if (local.length <= 4) {
+    return `${local.slice(0, 1)}****@${domain}`;
+  }
+  return `${local.slice(0, 4)}********${local.slice(-2)}@${domain}`;
+};

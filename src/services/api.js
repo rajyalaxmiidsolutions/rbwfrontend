@@ -155,4 +155,12 @@ export const adminUpdateAnnouncement = (id, data) => API.put(`/admin/announcemen
 });
 export const adminDeleteAnnouncement = (id) => API.delete(`/admin/announcements/${id}`);
 
+// Admin Settings & Security
+export const getStoreStatus = () => API.get('/admin/store-status');
+export const adminGetSettings = () => API.get('/admin/settings');
+export const adminUpdateSettings = (data) => API.put('/admin/settings', data);
+export const adminChangePassword = (data) => API.post('/admin/change-password', data);
+export const adminRequestEmergencyOTP = () => API.post('/admin/request-emergency-otp');
+export const adminRevokeSession = (sessionId) => API.post('/admin/revoke-session', { sessionId });
+
 export default API;
