@@ -16,7 +16,7 @@ const AdminCategories = () => {
   const handleToggleFeatured = async (id) => {
     try {
       await adminToggleFeaturedCategory(id);
-      toast.success('Category featured status updated');
+      toast.success('Series featured status updated');
       fetchCategories();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to toggle featured status');
@@ -59,10 +59,10 @@ const AdminCategories = () => {
 
       if (editId) {
         await adminUpdateCategory(editId, formData);
-        toast.success('Category updated');
+        toast.success('Series updated');
       } else {
         await adminCreateCategory(formData);
-        toast.success('Category created');
+        toast.success('Series created');
       }
       setShowModal(false);
       fetchCategories();
@@ -72,10 +72,10 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this category?')) return;
+    if (!confirm('Delete this series?')) return;
     try {
       await adminDeleteCategory(id);
-      toast.success('Category deleted');
+      toast.success('Series deleted');
       fetchCategories();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete');
@@ -96,20 +96,20 @@ const AdminCategories = () => {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search categories..."
+            placeholder="Search series..."
             className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-xl text-base focus:outline-none focus:border-burgundy"
           />
         </div>
         <div className="flex items-center justify-between sm:justify-end gap-4">
-          <p className="text-sm text-gray-500">{filteredCategories.length} categories</p>
+          <p className="text-sm text-gray-500">{filteredCategories.length} series</p>
           <button onClick={openCreate} className="flex items-center gap-2 bg-burgundy text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-burgundy-600 transition-colors shrink-0">
-            <HiOutlinePlus className="w-4 h-4" /> Add Category
+            <HiOutlinePlus className="w-4 h-4" /> Add Series
           </button>
         </div>
       </div>
 
       {filteredCategories.length === 0 ? (
-        <p className="text-center py-12 text-gray-500">No categories found matching your query.</p>
+        <p className="text-center py-12 text-gray-500">No series found matching your query.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredCategories.map((cat) => (
@@ -146,14 +146,14 @@ const AdminCategories = () => {
     )}
 
       {loading && <p className="text-center py-8 text-gray-400 text-sm">Loading...</p>}
-      {!loading && categories.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No categories. Create one to get started.</p>}
+      {!loading && categories.length === 0 && <p className="text-center py-8 text-gray-400 text-sm">No series. Create one to get started.</p>}
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-5 border-b border-border">
-              <h3 className="text-base font-semibold">{editId ? 'Edit Category' : 'Add Category'}</h3>
+              <h3 className="text-base font-semibold">{editId ? 'Edit Series' : 'Add Series'}</h3>
               <button onClick={() => setShowModal(false)}><HiOutlineX className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-4">

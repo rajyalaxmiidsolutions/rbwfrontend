@@ -116,13 +116,13 @@ const Shop = () => {
                 </div>
               )}
               <div className="bg-white rounded-xl border border-border p-5 lg:sticky lg:top-24">
-                <h3 className="text-sm font-semibold text-text mb-4">Categories</h3>
+                <h3 className="text-sm font-semibold text-text mb-4">Series</h3>
                 <div className="space-y-2">
                   <button
                     onClick={() => { setCategory(''); setPage(1); setShowFilters(false); }}
                     className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!category ? 'bg-burgundy text-white' : 'text-text hover:bg-bg'}`}
                   >
-                    All Categories
+                    All Series
                   </button>
                   {categories.map((cat) => (
                     <button

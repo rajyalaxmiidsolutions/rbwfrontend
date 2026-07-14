@@ -78,12 +78,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Series */}
       {categories.length > 0 && (
         <section className="py-20 sm:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div {...fadeUp} className="text-center mb-14">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text">Featured Categories</h2>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-text">Featured Series</h2>
               <p className="mt-4 text-lg text-gray-500">Explore our curated collection</p>
             </motion.div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7">

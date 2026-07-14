@@ -5,8 +5,10 @@ import { HiOutlineSearch, HiOutlineX, HiOutlineArrowRight } from 'react-icons/hi
 import { getProducts } from '../../services/api';
 import { formatPrice } from '../../utils/helpers';
 import useDebounce from '../../hooks/useDebounce';
+import useAuth from '../../hooks/useAuth';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
+  const { isAuthenticated } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -120,7 +122,9 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                         <p className="text-base font-medium text-text truncate">{product.name}</p>
                         <p className="text-sm text-gray-400">{product.category?.name}</p>
                       </div>
-                      <p className="text-base font-semibold text-burgundy shrink-0">{formatPrice(product.price)}</p>
+                      {isAuthenticated && (
+                        <p className="text-base font-semibold text-burgundy shrink-0">{formatPrice(product.price)}</p>
+                      )}
                     </button>
                   ))}
                   <button

@@ -109,7 +109,7 @@ const AdminProducts = () => {
           <thead>
             <tr className="border-b border-border">
               <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Product</th>
-              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Category</th>
+              <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Series</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Price</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">MOQ</th>
               <th className="text-left px-5 py-3 text-xs font-medium text-gray-400 uppercase">Stock</th>
@@ -174,9 +174,9 @@ const AdminProducts = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Category *</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Series *</label>
                   <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy appearance-none">
-                    <option value="">Select</option>
+                    <option value="">Select Series</option>
                     {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                   </select>
                 </div>

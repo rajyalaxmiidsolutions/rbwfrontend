@@ -59,6 +59,7 @@ const AdminOrders = () => {
     trackingNumber: '',
   });
   const [savingDelivery, setSavingDelivery] = useState(false);
+  const [isEditingDelivered, setIsEditingDelivered] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -142,6 +143,7 @@ const AdminOrders = () => {
   };
 
   const toggleExpand = (order) => {
+    setIsEditingDelivered(false);
     if (expandedOrder === order._id) {
       setExpandedOrder(null);
     } else {
@@ -156,11 +158,19 @@ const AdminOrders = () => {
     }
   };
 
-  const handleSaveDeliveryInfo = async (orderId) => {
+  const handleSaveDeliveryInfo = async (order, orderId) => {
+    const isDelivered = order.orderStatus === 'Delivered';
+    const msg = isDelivered
+      ? "Are you sure you want to update the delivery info? This will count as one of your 2 permitted edits after delivery."
+      : "Are you sure you want to save the delivery info?";
+    
+    if (!window.confirm(msg)) return;
+
     setSavingDelivery(true);
     try {
       await adminUpdateDeliveryInfo(orderId, deliveryForm);
       toast.success('Delivery info updated');
+      setIsEditingDelivered(false);
       fetchOrders();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update delivery info');
@@ -525,7 +535,7 @@ const AdminOrders = () => {
                         </div>
                         <div className="flex gap-3 pt-2">
                           <button
-                            onClick={() => handleSaveDeliveryInfo(order._id)}
+                            onClick={() => handleSaveDeliveryInfo(order, order._id)}
                             disabled={savingDelivery}
                             className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
                           >
@@ -544,15 +554,127 @@ const AdminOrders = () => {
                   )}
 
                   {order.orderStatus === 'Delivered' && order.deliveryInfo && (
-                    <div className="bg-white rounded-xl border border-border p-4">
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Delivery Info</h4>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        {order.deliveryInfo.trackingNumber && <p>📦 Tracking: {order.deliveryInfo.trackingNumber}</p>}
-                        {order.deliveryInfo.receivingSpot && <p>📍 Spot: {order.deliveryInfo.receivingSpot}</p>}
-                        {order.deliveryInfo.deliveryBoyName && <p>👤 {order.deliveryInfo.deliveryBoyName}</p>}
-                        {order.deliveryInfo.deliveryBoyPhone && <p>📞 {order.deliveryInfo.deliveryBoyPhone}</p>}
-                        {order.deliveryInfo.deliveryNotes && <p>📝 {order.deliveryInfo.deliveryNotes}</p>}
+                    <div className="bg-white rounded-xl border border-border p-5 space-y-4">
+                      <div className="flex justify-between items-center pb-2 border-b border-border">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Delivery Info</h4>
+                        {(() => {
+                          const deliveredTime = order.deliveredAt ? new Date(order.deliveredAt).getTime() : new Date(order.updatedAt).getTime();
+                          const timeElapsedMs = Date.now() - deliveredTime;
+                          const hoursElapsed = timeElapsedMs / (1000 * 60 * 60);
+                          const editsRemaining = 2 - (order.deliveryInfoEditCount || 0);
+                          const isEditAllowed = hoursElapsed < 2 && editsRemaining > 0;
+                          const minsRemaining = Math.max(0, Math.ceil(120 - timeElapsedMs / 60000));
+
+                          if (isEditingDelivered) return null;
+
+                          return (
+                            <div className="text-right">
+                              {isEditAllowed ? (
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs text-amber-600 font-medium">
+                                    {editsRemaining} edit(s) left ({minsRemaining}m left)
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setDeliveryForm({
+                                        receivingSpot: order.deliveryInfo.receivingSpot || '',
+                                        deliveryBoyPhone: order.deliveryInfo.deliveryBoyPhone || '',
+                                        deliveryBoyName: order.deliveryInfo.deliveryBoyName || '',
+                                        deliveryNotes: order.deliveryInfo.deliveryNotes || '',
+                                        trackingNumber: order.deliveryInfo.trackingNumber || '',
+                                      });
+                                      setIsEditingDelivered(true);
+                                    }}
+                                    className="text-xs bg-burgundy/10 text-burgundy hover:bg-burgundy hover:text-white px-2.5 py-1 rounded-lg font-semibold transition-all duration-200"
+                                  >
+                                    Edit Info
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-[11px] text-gray-400 font-medium">
+                                  {editsRemaining <= 0 ? 'Edit limit reached' : 'Edit window expired (2h)'}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
+
+                      {isEditingDelivered ? (
+                        <div className="space-y-4 pt-1">
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Tracking Number</label>
+                            <input
+                              value={deliveryForm.trackingNumber}
+                              onChange={(e) => setDeliveryForm({ ...deliveryForm, trackingNumber: e.target.value })}
+                              placeholder="e.g. AWB12345678"
+                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Receiving Spot</label>
+                            <input
+                              value={deliveryForm.receivingSpot}
+                              onChange={(e) => setDeliveryForm({ ...deliveryForm, receivingSpot: e.target.value })}
+                              placeholder="e.g. Front gate, warehouse entrance"
+                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Name</label>
+                              <input
+                                value={deliveryForm.deliveryBoyName}
+                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyName: e.target.value })}
+                                placeholder="Name"
+                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Boy Phone</label>
+                              <input
+                                value={deliveryForm.deliveryBoyPhone}
+                                onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryBoyPhone: e.target.value })}
+                                placeholder="Phone number"
+                                className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Delivery Notes</label>
+                            <textarea
+                              value={deliveryForm.deliveryNotes}
+                              onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryNotes: e.target.value })}
+                              placeholder="Any special instructions..."
+                              rows={2}
+                              className="w-full px-3 py-2 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
+                            />
+                          </div>
+                          <div className="flex gap-3 pt-2">
+                            <button
+                              onClick={() => setIsEditingDelivered(false)}
+                              className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-text rounded-xl text-xs font-semibold transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleSaveDeliveryInfo(order, order._id)}
+                              disabled={savingDelivery}
+                              className="flex-1 px-4 py-2 bg-burgundy hover:bg-burgundy/90 text-white rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                            >
+                              {savingDelivery ? 'Saving...' : 'Save Changes'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-600 space-y-1.5 pt-1">
+                          <p>📦 Tracking: {order.deliveryInfo.trackingNumber || '—'}</p>
+                          <p>📍 Spot: {order.deliveryInfo.receivingSpot || '—'}</p>
+                          <p>👤 Delivery Boy: {order.deliveryInfo.deliveryBoyName || '—'}</p>
+                          <p>📞 Phone: {order.deliveryInfo.deliveryBoyPhone || '—'}</p>
+                          <p>📝 Notes: {order.deliveryInfo.deliveryNotes || '—'}</p>
+                        </div>
+                      )}
                     </div>
                   )}
 

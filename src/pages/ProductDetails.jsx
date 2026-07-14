@@ -100,7 +100,15 @@ const ProductDetails = () => {
               </p>
             )}
             <h1 className="text-2xl sm:text-3xl font-bold text-text mb-4">{product.name}</h1>
-            <p className="text-3xl font-bold text-burgundy mb-6">{formatPrice(product.price)}</p>
+            {!isAuthenticated ? (
+              <div className="mb-6">
+                <span className="inline-block text-sm font-semibold text-burgundy bg-burgundy/5 px-4 py-2 rounded-xl border border-burgundy/10">
+                  Login to view price
+                </span>
+              </div>
+            ) : (
+              <p className="text-3xl font-bold text-burgundy mb-6">{formatPrice(product.price)}</p>
+            )}
 
             <div className="space-y-4 mb-8">
               <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
@@ -108,50 +116,63 @@ const ProductDetails = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-bg rounded-xl p-4">
                   <p className="text-xs text-gray-400 mb-1">Min. Order Qty</p>
-                  <p className="text-sm font-semibold text-text">{product.moq} pieces</p>
+                  <p className="text-sm font-semibold text-text">
+                    {isAuthenticated ? `${product.moq} pieces` : 'Login to view'}
+                  </p>
                 </div>
                 <div className="bg-bg rounded-xl p-4">
                   <p className="text-xs text-gray-400 mb-1">Stock</p>
-                  <p className={`text-sm font-bold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {product.stock > 0 ? 'Available' : 'Out of Stock'}
+                  <p className={`text-sm font-bold ${!isAuthenticated ? 'text-burgundy' : (product.stock > 0 ? 'text-green-600' : 'text-red-600')}`}>
+                    {isAuthenticated ? (product.stock > 0 ? 'Available' : 'Out of Stock') : 'Login to view'}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Quantity Selector */}
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-sm font-medium text-text">Quantity:</span>
-              <div className="flex items-center border border-border rounded-xl overflow-hidden">
-                <button
-                  onClick={() => setQuantity(Math.max(product.moq, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-bg transition-colors"
-                >
-                  <HiMinus className="w-3 h-3" />
-                </button>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(product.moq, Number(e.target.value) || product.moq))}
-                  className="w-16 h-10 text-center text-sm font-medium border-x border-border focus:outline-none"
-                />
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-bg transition-colors"
-                >
-                  <HiPlus className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
+            {/* Quantity Selector & Add to Cart */}
+            {!isAuthenticated ? (
+              <button
+                onClick={handleAddToCart}
+                className="w-full flex items-center justify-center gap-2 bg-burgundy text-white py-3.5 rounded-xl font-semibold text-sm hover:bg-burgundy-600 transition-colors"
+              >
+                Login to View & Purchase
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-sm font-medium text-text">Quantity:</span>
+                  <div className="flex items-center border border-border rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => setQuantity(Math.max(product.moq, quantity - 1))}
+                      className="w-10 h-10 flex items-center justify-center hover:bg-bg transition-colors"
+                    >
+                      <HiMinus className="w-3 h-3" />
+                    </button>
+                    <input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(product.moq, Number(e.target.value) || product.moq))}
+                      className="w-16 h-10 text-center text-sm font-medium border-x border-border focus:outline-none"
+                    />
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-10 h-10 flex items-center justify-center hover:bg-bg transition-colors"
+                    >
+                      <HiPlus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
 
-            <button
-              onClick={handleAddToCart}
-              disabled={product.stock < 1}
-              className="w-full flex items-center justify-center gap-2 bg-burgundy text-white py-3.5 rounded-xl font-semibold text-sm hover:bg-burgundy-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <HiOutlineShoppingCart className="w-4 h-4" />
-              {product.stock < 1 ? 'Out of Stock' : 'Add to Cart'}
-            </button>
+                <button
+                  onClick={handleAddToCart}
+                  disabled={product.stock < 1}
+                  className="w-full flex items-center justify-center gap-2 bg-burgundy text-white py-3.5 rounded-xl font-semibold text-sm hover:bg-burgundy-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <HiOutlineShoppingCart className="w-4 h-4" />
+                  {product.stock < 1 ? 'Out of Stock' : 'Add to Cart'}
+                </button>
+              </>
+            )}
           </div>
         </motion.div>
 

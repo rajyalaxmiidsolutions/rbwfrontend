@@ -7,7 +7,7 @@ const sidebarLinks = [
   { to: '/admin', label: 'Dashboard', icon: HiOutlineChartBar, exact: true },
   { to: '/admin/products', label: 'Products', icon: HiOutlineCube },
   { to: '/admin/orders', label: 'Orders', icon: HiOutlineClipboardList },
-  { to: '/admin/categories', label: 'Categories', icon: HiOutlineTag },
+  { to: '/admin/categories', label: 'Series', icon: HiOutlineTag },
   { to: '/admin/customers', label: 'Customers', icon: HiOutlineUsers },
   { to: '/admin/locations', label: 'Locations', icon: HiOutlineLocationMarker },
   { to: '/admin/testimonials', label: 'Testimonials', icon: HiOutlineChatAlt },

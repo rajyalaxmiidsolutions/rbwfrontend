@@ -59,19 +59,29 @@ const ProductCard = ({ product }) => {
             <h3 className="text-sm font-medium text-text line-clamp-1 mb-2">
               {product.name}
             </h3>
-            <div className="flex items-center justify-between">
-              <p className="text-base font-semibold text-burgundy">
-                {formatPrice(product.price)}
-              </p>
-              <p className="text-[11px] text-gray-400">
-                MOQ: {product.moq}
-              </p>
-            </div>
-            <div className="mt-2.5 pt-2.5 border-t border-border/50 flex items-center justify-between">
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg ${product.stock > 0 ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-              </span>
-            </div>
+            {!isAuthenticated ? (
+              <div className="mt-2.5 pt-2 text-center border-t border-border/30">
+                <span className="inline-block text-[11px] font-semibold text-burgundy bg-burgundy/5 px-2.5 py-1.5 rounded-lg border border-burgundy/10 w-full">
+                  Login to view details
+                </span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-base font-semibold text-burgundy">
+                    {formatPrice(product.price)}
+                  </p>
+                  <p className="text-[11px] text-gray-400">
+                    MOQ: {product.moq}
+                  </p>
+                </div>
+                <div className="mt-2.5 pt-2.5 border-t border-border/50 flex items-center justify-between">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg ${product.stock > 0 ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                    {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Link>
