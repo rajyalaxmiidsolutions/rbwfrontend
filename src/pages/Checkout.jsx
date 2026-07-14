@@ -129,7 +129,7 @@ const Checkout = () => {
         }
 
         const options = {
-          key: 'rzp_test_TA7Xt2VkDXNTPc',
+          key: 'rzp_test_TDMFbCLHXPzKUy',
           amount: data.razorpayOrder.amount,
           currency: data.razorpayOrder.currency,
           name: 'Rajyalaxmi Binding Works',
