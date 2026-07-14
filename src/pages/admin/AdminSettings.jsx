@@ -56,6 +56,8 @@ const AdminSettings = () => {
   // OTP Verification Modal
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpValue, setOtpValue] = useState('');
+  const [adminOtpValue, setAdminOtpValue] = useState('');
+  const [bossCodeValue, setBossCodeValue] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [pendingChanges, setPendingChanges] = useState(null);
   const [cooldown, setCooldown] = useState(0);
@@ -180,7 +182,7 @@ const AdminSettings = () => {
     }
   };
 
-  // Triggers Emergency OTP code dispatch to Emergency Approver
+  // Triggers Emergency OTP code dispatch to Emergency Approver and Boss Admin
   const triggerEmergencyOTP = async (changes) => {
     setPendingChanges(changes);
     setOtpLoading(true);
@@ -188,10 +190,12 @@ const AdminSettings = () => {
       const { data } = await adminRequestEmergencyOTP();
       toast.success(data.message);
       setOtpValue('');
+      setAdminOtpValue('');
+      setBossCodeValue('');
       setOtpModalOpen(true);
       setCooldown(60);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to request emergency code');
+      toast.error(err.response?.data?.message || 'Failed to request verification codes');
     } finally {
       setOtpLoading(false);
     }
@@ -204,14 +208,14 @@ const AdminSettings = () => {
       toast.success(data.message);
       setCooldown(60);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to resend code');
+      toast.error(err.response?.data?.message || 'Failed to resend codes');
     }
   };
 
   const handleVerifyEmergencyOTP = async (e) => {
     e.preventDefault();
-    if (!otpValue || otpValue.length < 4) {
-      toast.error('Please enter a valid verification code');
+    if (!otpValue || otpValue.length < 4 || !adminOtpValue || adminOtpValue.length < 4 || !bossCodeValue.trim()) {
+      toast.error('Please enter all verification details');
       return;
     }
 
@@ -219,7 +223,9 @@ const AdminSettings = () => {
     try {
       const { data } = await adminUpdateSettings({
         ...pendingChanges,
-        otp: otpValue.trim()
+        otp: otpValue.trim(),
+        adminOtp: adminOtpValue.trim(),
+        bossCode: bossCodeValue.trim()
       });
       toast.success('Security settings updated successfully!');
       
@@ -238,7 +244,7 @@ const AdminSettings = () => {
       setOtpModalOpen(false);
       setPendingChanges(null);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'OTP verification failed');
+      toast.error(err.response?.data?.message || 'Verification failed');
     } finally {
       setOtpLoading(false);
     }
@@ -657,26 +663,57 @@ const AdminSettings = () => {
       {otpModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white max-w-md w-full rounded-2xl border border-border p-6 shadow-2xl relative">
-            <h3 className="text-base font-bold text-[#6D0F1A] mb-1">Emergency Approval Required</h3>
+            <h3 className="text-base font-bold text-[#6D0F1A] mb-1">Emergency Security Verification</h3>
             <p className="text-xs text-gray-400 mb-6">
-              A 6-digit verification code has been dispatched to the registered Emergency Approver email ({maskEmail(settings.emergencyApproverEmail)}).
+              Critical changes require validation from the Emergency Approver, the current Boss Admin, and the Boss Code.
             </p>
 
             <form onSubmit={handleVerifyEmergencyOTP} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Verification Code</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 text-left">
+                  1. Emergency Approver Code (sent to {maskEmail(settings.emergencyApproverEmail)})
+                </label>
                 <input 
                   type="text" 
                   value={otpValue} 
                   onChange={(e) => setOtpValue(e.target.value)} 
-                  placeholder="Enter 6-digit OTP"
+                  placeholder="6-digit code"
                   maxLength="6"
                   required
-                  className="w-full text-sm text-center tracking-[0.2em] font-bold border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-burgundy"
+                  className="w-full text-sm text-center tracking-[0.2em] font-bold border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:border-burgundy"
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 text-left">
+                  2. Boss Admin Code (sent to {maskEmail(settings.email)})
+                </label>
+                <input 
+                  type="text" 
+                  value={adminOtpValue} 
+                  onChange={(e) => setAdminOtpValue(e.target.value)} 
+                  placeholder="6-digit code"
+                  maxLength="6"
+                  required
+                  className="w-full text-sm text-center tracking-[0.2em] font-bold border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:border-burgundy"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1 text-left">
+                  3. Boss Code
+                </label>
+                <input 
+                  type="password" 
+                  value={bossCodeValue} 
+                  onChange={(e) => setBossCodeValue(e.target.value)} 
+                  placeholder="Enter Boss Code (e.g. JUNNU00381)"
+                  required
+                  className="w-full text-sm text-center font-bold border border-gray-200 rounded-xl px-4 py-2.5 outline-none focus:border-burgundy"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
                 <button 
                   type="button" 
                   onClick={() => setOtpModalOpen(false)}
