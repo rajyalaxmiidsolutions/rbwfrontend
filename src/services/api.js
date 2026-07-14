@@ -8,8 +8,8 @@ const API = axios.create({
 
 // Attach JWT token to every request
 API.interceptors.request.use((config) => {
-  // Use admin token for admin routes, user token for everything else
-  const isAdminRoute = config.url?.startsWith('/admin') || config.url?.includes('/admin/');
+  // Use admin token if URL contains 'admin', user token for everything else
+  const isAdminRoute = config.url?.includes('admin');
   const token = isAdminRoute
     ? localStorage.getItem('rbw_admin_token')
     : localStorage.getItem('rbw_token');
