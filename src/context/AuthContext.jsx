@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getProfile } from '../services/api';
+import { getProfile, logout as apiLogout } from '../services/api';
 
 export const AuthContext = createContext(null);
 
@@ -38,12 +38,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    apiLogout().catch(err => console.warn("Cookie logout failed:", err.message));
     localStorage.removeItem('rbw_token');
     setToken(null);
     setUser(null);
   };
 
   const logoutAdmin = () => {
+    apiLogout().catch(err => console.warn("Cookie logout failed:", err.message));
     localStorage.removeItem('rbw_admin_token');
     setAdminToken(null);
   };

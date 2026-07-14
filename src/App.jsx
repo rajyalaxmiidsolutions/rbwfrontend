@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -6,6 +6,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Loader from './components/common/Loader';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
+import NotificationPrompt from './components/common/NotificationPrompt';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -39,6 +40,18 @@ const Updates = lazy(() => import('./pages/Updates'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const App = () => {
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handleSWMessage = (event) => {
+        if (event.data && event.data.type === 'NAVIGATE') {
+          window.location.href = event.data.url;
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handleSWMessage);
+      return () => navigator.serviceWorker.removeEventListener('message', handleSWMessage);
+    }
+  }, []);
+
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
@@ -80,6 +93,7 @@ const App = () => {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <NotificationPrompt />
     </Suspense>
   );
 };

@@ -3,12 +3,13 @@ import axios from 'axios';
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://rbwbackend.onrender.com/api',
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
 
 // Attach JWT token to every request
 API.interceptors.request.use((config) => {
   // Use admin token for admin routes, user token for everything else
-  const isAdminRoute = config.url?.startsWith('/admin');
+  const isAdminRoute = config.url?.startsWith('/admin') || config.url?.includes('/admin/');
   const token = isAdminRoute
     ? localStorage.getItem('rbw_admin_token')
     : localStorage.getItem('rbw_token');
@@ -23,8 +24,16 @@ export const signup = (data) => API.post('/auth/signup', data);
 export const verifyOTP = (data) => API.post('/auth/verify-otp', data);
 export const resendOTP = (data) => API.post('/auth/resend-otp', data);
 export const login = (data) => API.post('/auth/login', data);
+export const logout = () => API.post('/auth/logout');
 export const forgotPassword = (data) => API.post('/auth/forgot-password', data);
 export const resetPassword = (data) => API.post('/auth/reset-password', data);
+
+// Web Push Notifications
+export const subscribePush = (subscription) => API.post('/push/subscribe', { subscription });
+export const subscribeAdminPush = (subscription) => API.post('/push/admin-subscribe', { subscription });
+export const unsubscribePush = (endpoint) => API.post('/push/unsubscribe', { endpoint });
+export const adminSendCustomNotification = (data) => API.post('/push/admin/send-custom', data);
+export const adminGetPushStats = () => API.get('/push/admin/stats');
 
 // Products
 export const getProducts = (params) => API.get('/products', { params });

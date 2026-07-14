@@ -6,6 +6,10 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import App from './App';
 import './index.css';
+import { registerServiceWorker } from './utils/pushManager';
+
+// Register Service Worker for Web Push notifications
+registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
