@@ -6,7 +6,7 @@ import { BUSINESS } from '../../utils/constants';
 
 const AdminSettings = () => {
   const [seeding, setSeeding] = useState(false);
-  const [stats, setStats] = useState({ customers: 0, admins: 0, total: 0 });
+  const [stats, setStats] = useState({ registeredCustomers: 0, customers: 0, admins: 0, total: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
   
   // Custom notification form state
@@ -60,7 +60,7 @@ const AdminSettings = () => {
     }
 
     const confirmSend = window.confirm(
-      `Are you sure you want to send this push notification to all ${stats.customers} active customer subscribers?`
+      `Are you sure you want to send this push notification to all customer subscribers?`
     );
     if (!confirmSend) return;
 
@@ -94,14 +94,18 @@ const AdminSettings = () => {
         </p>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+            <div className="text-lg font-bold text-burgundy">{statsLoading ? '...' : stats.registeredCustomers}</div>
+            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Registered Customers</div>
+          </div>
           <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
             <div className="text-lg font-bold text-burgundy">{statsLoading ? '...' : stats.customers}</div>
-            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Customers</div>
+            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Subscribed Customers</div>
           </div>
           <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
             <div className="text-lg font-bold text-burgundy">{statsLoading ? '...' : stats.admins}</div>
-            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Admins</div>
+            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Subscribed Admins</div>
           </div>
           <div className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
             <div className="text-lg font-bold text-burgundy">{statsLoading ? '...' : stats.total}</div>
@@ -164,7 +168,7 @@ const AdminSettings = () => {
           </div>
           <button 
             type="submit" 
-            disabled={sending || stats.customers === 0} 
+            disabled={sending} 
             className="w-full bg-burgundy hover:bg-burgundy-600 disabled:opacity-50 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors"
           >
             {sending ? 'Sending Broadcast...' : 'Broadcast to All Customers'}

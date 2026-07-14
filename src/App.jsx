@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -6,7 +6,8 @@ import AdminLayout from './layouts/AdminLayout';
 import Loader from './components/common/Loader';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRoute from './components/common/AdminRoute';
-import NotificationPrompt from './components/common/NotificationPrompt';
+import { AuthContext } from './context/AuthContext';
+import { subscribeUserToPush, getNotificationPermissionState } from './utils/pushManager';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'));
@@ -40,7 +41,10 @@ const Updates = lazy(() => import('./pages/Updates'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 const App = () => {
+  const { isAuthenticated, adminToken, isAdmin } = useContext(AuthContext);
+
   useEffect(() => {
+    // Listen to Service Worker message events
     if ('serviceWorker' in navigator) {
       const handleSWMessage = (event) => {
         if (event.data && event.data.type === 'NAVIGATE') {
@@ -51,6 +55,20 @@ const App = () => {
       return () => navigator.serviceWorker.removeEventListener('message', handleSWMessage);
     }
   }, []);
+
+  useEffect(() => {
+    // Automatically trigger notification permission prompt when a user logs in
+    const isUserLoggedIn = isAuthenticated || !!adminToken;
+    if (isUserLoggedIn) {
+      const permission = getNotificationPermissionState();
+      if (permission === 'default') {
+        const timer = setTimeout(() => {
+          subscribeUserToPush(!!adminToken || isAdmin);
+        }, 3000); // Trigger after 3 seconds for better loading flow
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isAuthenticated, adminToken, isAdmin]);
 
   return (
     <Suspense fallback={<Loader />}>
@@ -93,7 +111,6 @@ const App = () => {
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <NotificationPrompt />
     </Suspense>
   );
 };
