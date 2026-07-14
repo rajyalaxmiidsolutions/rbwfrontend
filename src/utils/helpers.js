@@ -30,3 +30,18 @@ export const truncate = (str, len = 60) => {
   if (!str) return '';
   return str.length > len ? str.slice(0, len) + '...' : str;
 };
+
+export const optimizeCloudinaryUrl = (url, width) => {
+  if (!url || typeof url !== 'string') return url || '';
+  if (!url.includes('res.cloudinary.com')) return url;
+
+  const uploadIndex = url.indexOf('image/upload');
+  if (uploadIndex === -1) return url;
+
+  const insertIndex = uploadIndex + 'image/upload'.length;
+  const prefix = url.slice(0, insertIndex);
+  const suffix = url.slice(insertIndex);
+
+  const transformations = width ? `/f_auto,q_auto,w_${width}` : '/f_auto,q_auto';
+  return prefix + transformations + suffix;
+};

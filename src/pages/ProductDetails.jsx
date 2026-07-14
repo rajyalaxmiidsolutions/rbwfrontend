@@ -5,7 +5,7 @@ import { HiOutlineShoppingCart, HiMinus, HiPlus } from 'react-icons/hi';
 import ProductCard from '../components/shop/ProductCard';
 import Loader from '../components/common/Loader';
 import { getProduct, getRelatedProducts } from '../services/api';
-import { formatPrice } from '../utils/helpers';
+import { formatPrice, optimizeCloudinaryUrl } from '../utils/helpers';
 import useAuth from '../hooks/useAuth';
 import useCart from '../hooks/useCart';
 import toast from 'react-hot-toast';
@@ -72,7 +72,7 @@ const ProductDetails = () => {
               onClick={() => setZoomed(!zoomed)}
             >
               <img
-                src={product.images?.[selectedImage]?.url || '/logo.png'}
+                src={optimizeCloudinaryUrl(product.images?.[selectedImage]?.url, 800) || '/logo.png'}
                 alt={product.name}
                 className={`w-full h-full object-cover transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
               />
@@ -85,7 +85,7 @@ const ProductDetails = () => {
                     onClick={() => { setSelectedImage(i); setZoomed(false); }}
                     className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-colors ${i === selectedImage ? 'border-burgundy' : 'border-border'}`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img src={optimizeCloudinaryUrl(img.url, 150)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

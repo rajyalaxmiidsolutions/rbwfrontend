@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
-import { formatPrice } from '../../utils/helpers';
+import { formatPrice, optimizeCloudinaryUrl } from '../../utils/helpers';
 import useAuth from '../../hooks/useAuth';
 import useCart from '../../hooks/useCart';
 import { useNavigate } from 'react-router-dom';
@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
           {/* Image */}
           <div className="aspect-[4/5] overflow-hidden bg-bg relative">
             <img
-              src={product.images?.[0]?.url || '/logo.png'}
+              src={optimizeCloudinaryUrl(product.images?.[0]?.url, 400) || '/logo.png'}
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"

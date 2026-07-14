@@ -5,6 +5,7 @@ import { HiOutlineArrowRight, HiOutlineStar, HiOutlineTruck, HiOutlineCurrencyRu
 import ProductCard from '../components/shop/ProductCard';
 import { getProducts, getCategories, getTestimonials } from '../services/api';
 import { BUSINESS } from '../utils/constants';
+import { optimizeCloudinaryUrl } from '../utils/helpers';
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -101,7 +102,7 @@ const Home = () => {
                   >
                     <div className="aspect-square bg-bg overflow-hidden">
                       <img
-                        src={cat.image?.url || '/logo.png'}
+                        src={optimizeCloudinaryUrl(cat.image?.url, 300) || '/logo.png'}
                         alt={cat.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"

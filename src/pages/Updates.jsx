@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getGalleryPhotos, getPublicAnnouncements } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineX, HiChevronLeft, HiChevronRight, HiOutlinePhotograph, HiOutlineVolumeUp } from 'react-icons/hi';
+import { optimizeCloudinaryUrl } from '../utils/helpers';
 
 const Updates = () => {
   // Announcements (Notice Board) State
@@ -132,7 +133,7 @@ const Updates = () => {
                     {ann.image?.url && (
                       <div className="mt-4 max-w-lg rounded-xl overflow-hidden border border-border bg-bg/50 shadow-sm">
                         <img 
-                          src={ann.image.url} 
+                          src={optimizeCloudinaryUrl(ann.image.url, 600)} 
                           alt="Update Attachment" 
                           className="w-full h-auto max-h-[320px] object-contain"
                           loading="lazy"
@@ -199,7 +200,7 @@ const Updates = () => {
                 >
                   <div className="overflow-hidden bg-bg relative aspect-video sm:aspect-auto">
                     <img
-                      src={photos[0].image.url}
+                      src={optimizeCloudinaryUrl(photos[0].image.url, 1000)}
                       alt={photos[0].title || 'RBW Gallery'}
                       className="w-full h-auto max-h-[60vh] object-cover mx-auto transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
                       loading="lazy"
@@ -236,7 +237,7 @@ const Updates = () => {
                   >
                     <div className="overflow-hidden bg-bg relative aspect-video sm:aspect-square md:aspect-video">
                       <img
-                        src={photo.image.url}
+                        src={optimizeCloudinaryUrl(photo.image.url, 600)}
                         alt={photo.title || 'RBW Gallery'}
                         className="w-full h-full object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"
@@ -277,7 +278,7 @@ const Updates = () => {
                   >
                     <div className="overflow-hidden bg-bg relative">
                       <img
-                        src={photo.image.url}
+                        src={optimizeCloudinaryUrl(photo.image.url, 500)}
                         alt={photo.title || 'RBW Gallery'}
                         className="w-full h-auto object-cover transform scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
                         loading="lazy"
@@ -346,7 +347,7 @@ const Updates = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4 }}
-                src={photos[activePhotoIndex].image.url}
+                src={optimizeCloudinaryUrl(photos[activePhotoIndex].image.url, 1200)}
                 alt={photos[activePhotoIndex].title || 'RBW Gallery Item'}
                 className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl"
               />
