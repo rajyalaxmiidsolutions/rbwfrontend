@@ -44,6 +44,11 @@ const AdminGallery = () => {
     startDate: '',
     endDate: ''
   });
+  const [announcementImageFile, setAnnouncementImageFile] = useState(null);
+  const [announcementImagePreview, setAnnouncementImagePreview] = useState('');
+  const [clearAnnouncementImage, setClearAnnouncementImage] = useState(false);
+
+  const quickEmojis = ['📢', '🎉', '✨', '🛍️', '✉️', '📞', '🚚', '🔔', '❤️', '🆕', '🔥', '❕'];
 
   const availablePages = ['Home', 'Shop', 'Cart', 'Contact'];
 
@@ -139,6 +144,9 @@ const AdminGallery = () => {
       startDate: '',
       endDate: ''
     });
+    setAnnouncementImageFile(null);
+    setAnnouncementImagePreview('');
+    setClearAnnouncementImage(false);
     setShowModal(true);
   };
 
@@ -152,6 +160,9 @@ const AdminGallery = () => {
       startDate: formattedStartDate,
       endDate: formattedEndDate
     });
+    setAnnouncementImageFile(null);
+    setAnnouncementImagePreview(ann.image?.url || '');
+    setClearAnnouncementImage(false);
     setShowModal(true);
   };
 
@@ -186,18 +197,23 @@ const AdminGallery = () => {
 
     setSavingAnnouncement(true);
     try {
-      const payload = {
-        message: announcementForm.message.trim(),
-        displayPages: announcementForm.displayPages,
-        startDate: announcementForm.startDate,
-        endDate: announcementForm.endDate
-      };
+      const formData = new FormData();
+      formData.append('message', announcementForm.message.trim());
+      formData.append('displayPages', JSON.stringify(announcementForm.displayPages));
+      formData.append('startDate', announcementForm.startDate);
+      formData.append('endDate', announcementForm.endDate);
+
+      if (announcementImageFile) {
+        formData.append('images', announcementImageFile);
+      } else if (clearAnnouncementImage) {
+        formData.append('clearImage', 'true');
+      }
 
       if (editId) {
-        await adminUpdateAnnouncement(editId, payload);
+        await adminUpdateAnnouncement(editId, formData);
         toast.success('Announcement updated successfully');
       } else {
-        await adminCreateAnnouncement(payload);
+        await adminCreateAnnouncement(formData);
         toast.success('Announcement created successfully');
       }
       setShowModal(false);
@@ -507,6 +523,25 @@ const AdminGallery = () => {
                   rows="3"
                   className="w-full px-4 py-3 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy resize-none"
                 />
+                
+                {/* Emoji Quick Select */}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {quickEmojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        setAnnouncementForm((prev) => ({
+                          ...prev,
+                          message: prev.message + emoji
+                        }));
+                      }}
+                      className="px-2 py-1 text-xs bg-bg hover:bg-gray-200 border border-border rounded-lg transition-colors cursor-pointer"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Display Pages */}
@@ -548,6 +583,47 @@ const AdminGallery = () => {
                     required
                     className="w-full px-3.5 py-2.5 bg-bg border border-border rounded-xl text-sm focus:outline-none focus:border-burgundy"
                   />
+                </div>
+              </div>
+
+              {/* Announcement Image upload */}
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Announcement Image (Notice Board only)</label>
+                <div className="relative border-2 border-dashed border-border hover:border-burgundy rounded-xl p-3 transition-colors flex flex-col items-center justify-center min-h-[110px] bg-bg/20">
+                  {announcementImagePreview ? (
+                    <div className="relative w-full max-h-[100px] rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                      <img src={announcementImagePreview} alt="Preview" className="max-h-[100px] object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAnnouncementImageFile(null);
+                          setAnnouncementImagePreview('');
+                          setClearAnnouncementImage(true);
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+                      >
+                        <HiOutlineTrash className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer flex flex-col items-center justify-center w-full py-2 text-gray-400 hover:text-burgundy transition-colors">
+                      <HiOutlineUpload className="w-6 h-6 mb-1" />
+                      <span className="text-xs font-medium text-center">Click to browse image</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setAnnouncementImageFile(file);
+                            setAnnouncementImagePreview(URL.createObjectURL(file));
+                            setClearAnnouncementImage(false);
+                          }
+                        }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
 

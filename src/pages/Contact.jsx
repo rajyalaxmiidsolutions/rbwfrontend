@@ -175,8 +175,8 @@ const Contact = () => {
                     {[
                       'Premium quality wedding invitation cards',
                       'Best wholesale prices in the market',
-                      'Pan-India delivery with reliable shipping',
-                      'Custom bulk orders with flexible MOQ',
+                      'delivery across telugu states with reliable shipping',
+                      'Custom bulk orders ',
                       'Dedicated customer support',
                     ].map((item, i) => (
                       <div key={i} className="flex items-start gap-3">
@@ -190,7 +190,7 @@ const Contact = () => {
                 </div>
                 <div className="mt-10 pt-8 border-t border-white/10">
                   <p className="text-white/50 text-sm">Rajyalaxmi Binding Works & PaperMart</p>
-                  <p className="text-white/50 text-sm mt-1">Hyderabad, Telangana, India</p>
+                  <p className="text-white/50 text-sm mt-1">Palvancha, Telangana, India, pin-507115 </p>
                 </div>
               </div>
             </motion.div>

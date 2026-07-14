@@ -122,8 +122,12 @@ export const adminGetCustomerOrders = (id) => API.get(`/admin/customers/${id}/or
 export const getActiveAnnouncements = () => API.get('/announcements/active');
 export const getPublicAnnouncements = () => API.get('/announcements/public-all');
 export const adminGetAnnouncements = () => API.get('/admin/announcements');
-export const adminCreateAnnouncement = (data) => API.post('/admin/announcements', data);
-export const adminUpdateAnnouncement = (id, data) => API.put(`/admin/announcements/${id}`, data);
+export const adminCreateAnnouncement = (data) => API.post('/admin/announcements', data, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+});
+export const adminUpdateAnnouncement = (id, data) => API.put(`/admin/announcements/${id}`, data, {
+  headers: { 'Content-Type': 'multipart/form-data' },
+});
 export const adminDeleteAnnouncement = (id) => API.delete(`/admin/announcements/${id}`);
 
 export default API;

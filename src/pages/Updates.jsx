@@ -129,6 +129,16 @@ const Updates = () => {
                     <p className="text-base sm:text-lg text-text font-medium leading-relaxed break-words whitespace-pre-line">
                       {ann.message}
                     </p>
+                    {ann.image?.url && (
+                      <div className="mt-4 max-w-lg rounded-xl overflow-hidden border border-border bg-bg/50 shadow-sm">
+                        <img 
+                          src={ann.image.url} 
+                          alt="Update Attachment" 
+                          className="w-full h-auto max-h-[320px] object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
